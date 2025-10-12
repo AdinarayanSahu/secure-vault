@@ -76,7 +76,7 @@
     <h2>Welcome to SecureVault</h2>
     <p>Your trusted partner for safe and reliable banking.</p>
 
-    <form action="hello-servlet" method="post">
+    <form action="LandingServlet" method="post">
         <button type="submit" name="action" value="login" class="btn">Login</button>
         <button type="submit" name="action" value="register" class="btn">Register</button>
     </form>
