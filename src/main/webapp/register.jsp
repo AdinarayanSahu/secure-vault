@@ -41,7 +41,7 @@
 <body>
 <h2>Register Your SecureVault Account</h2>
 
-<form action="" method="post">
+<form action="#" method="post">
     <input type="text" name="name" placeholder="Full Name" required><br>
     <input type="number" name="age" placeholder="Age" required><br>
     <input type="text" name="address" placeholder="Address" required><br>
