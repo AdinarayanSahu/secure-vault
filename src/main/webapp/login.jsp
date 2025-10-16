@@ -3,57 +3,42 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>SecureVault Login</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #283E51, #485563);
-      color: white;
-      text-align: center;
-      padding-top: 80px;
-    }
-    form {
-      background-color: rgba(255, 255, 255, 0.1);
-      display: inline-block;
-      padding: 30px 50px;
-      border-radius: 10px;
-    }
-    input {
-      margin: 10px;
-      padding: 10px;
-      width: 250px;
-      border: none;
-      border-radius: 5px;
-    }
-    button {
-      padding: 12px 25px;
-      border: none;
-      background-color: #f1c40f;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      background-color: #ffd700;
-    }
-    p a {
-      color: yellow;
-      text-decoration: none;
-    }
-    p a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SecureVault</title>
+  <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
-<h2>Login to Your SecureVault Account</h2>
 
-<form action="#" method="post">
-  <input type="text" name="username" placeholder="Username" required><br>
-  <input type="password" name="password" placeholder="Password" required><br>
-  <button type="submit">Login</button>
-</form>
+<header>
+    <div class="container">
+        <h1>🏦 SecureVault Login</h1>
+    </div>
+</header>
 
-<p>Don't have an account? <a href="register.jsp">Register here</a></p>
+<main class="container">
+    <div class="welcome-section">
+        <h2>Login to Your Account</h2>
+
+        <form action="LoginServlet" method="post">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-login">Login</button>
+        </form>
+
+        <p>Don't have an account? <a href="register.jsp">Register here</a></p>
+        <p><a href="index.jsp">Back to Home</a></p>
+    </div>
+</main>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2025 SecureVault. All rights reserved.</p>
+    </div>
+</footer>
+
 </body>
 </html>

@@ -11,7 +11,7 @@ public class LoginServlet extends HttpServlet {
     public static Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/smartbank_db", "root", "password");
+                "jdbc:mysql://localhost:3306/smartbank_db", "root", "Dillip@swain2");
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -60,7 +60,7 @@ public class LoginServlet extends HttpServlet {
                 rs2.close();
                 ps2.close();
 
-                response.sendRedirect("DashboardServlet");
+                response.sendRedirect("dashboard.jsp");
 
             } else {
                 response.getWriter().println("<h3>Invalid username or password. <a href='login.jsp'>Try again</a></h3>");
