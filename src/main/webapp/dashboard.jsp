@@ -23,7 +23,7 @@
 
 <header>
     <div class="container">
-        <h1>🏦 SecureVault Dashboard</h1>
+        <h1> SecureVault Dashboard</h1>
     </div>
 </header>
 

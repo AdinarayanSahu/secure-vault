@@ -53,7 +53,7 @@ public class DepositServlet extends HttpServlet {
             }
 
             if ("true".equals(isQuickAdd) && "DIRECT_ADD".equals(paymentMethod)) {
-                // First verify account exists
+
                 boolean accountExists = DepositDao.verifyAccountExists(accountNo);
                 if (!accountExists) {
                     request.setAttribute("error", "Account not found. Please contact support.");
@@ -80,7 +80,6 @@ public class DepositServlet extends HttpServlet {
                     return;
                 }
 
-                // First verify account exists
                 boolean accountExists = DepositDao.verifyAccountExists(accountNo);
                 if (!accountExists) {
                     request.setAttribute("error", "Account not found. Please contact support.");

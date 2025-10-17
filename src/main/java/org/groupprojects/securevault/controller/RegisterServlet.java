@@ -12,7 +12,7 @@ public class RegisterServlet extends HttpServlet {
     public static Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/smartbank_db", "root", "Dillip@swain2");
+                "jdbc:mysql://localhost:3306/smartbank_db", "root", "password");
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

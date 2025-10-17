@@ -9,7 +9,7 @@ public class UserDao {
     public static Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/smartbank_db", "root", "Dillip@swain2");
+                "jdbc:mysql://localhost:3306/smartbank_db", "root", "password");
     }
 
     // Registers user and returns generated user_id, -1 if failed
