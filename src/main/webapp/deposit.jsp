@@ -5,8 +5,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Deposit Money</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 5px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box; }
+        .btn { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #0056b3; }
+        .quick-btn { background: #28a745; }
+        .quick-btn:hover { background: #218838; }
+        .error { color: red; margin: 10px 0; }
+        .success { color: green; margin: 10px 0; }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
+<body>
 
 <%
     String name = (String) session.getAttribute("name");
@@ -19,34 +32,32 @@
     }
 %>
 
-<div style="max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    <h2 style="text-align: center; color: #333;">Deposit Money</h2>
-    <p style="text-align: center; color: #666;">Account: <%= accountNo %> | Balance: ₹ <%= balance %></p>
+<div class="container">
+    <div class="header">
+        <h2>Deposit Money</h2>
+        <p>Account: <%= accountNo %> | Balance: ₹ <%= balance %></p>
+    </div>
 
     <% if (request.getAttribute("error") != null) { %>
-        <div style="color: red; margin: 10px 0; padding: 10px; background: #ffebee; border-radius: 3px;">
-            <%= request.getAttribute("error") %>
-        </div>
+        <div class="error"><%= request.getAttribute("error") %></div>
     <% } %>
 
     <% if (request.getAttribute("success") != null) { %>
-        <div style="color: green; margin: 10px 0; padding: 10px; background: #e8f5e8; border-radius: 3px;">
+        <div class="success">
             <%= request.getAttribute("success") %>
             <br>New Balance: ₹ <%= request.getAttribute("newBalance") %>
         </div>
     <% } %>
 
     <form action="DepositServlet" method="post">
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Amount:</label>
-            <input type="number" name="amount" placeholder="Enter amount" required min="1" max="100000" step="0.01"
-                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box;">
+        <div class="form-group">
+            <label>Amount to Deposit:</label>
+            <input type="number" name="amount" placeholder="Enter amount" required min="1" max="100000" step="0.01">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Payment Method:</label>
-            <select name="paymentMethod" required
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box;">
+        <div class="form-group">
+            <label>Payment Method:</label>
+            <select name="paymentMethod" required>
                 <option value="">Select Payment Method</option>
                 <option value="UPI">UPI</option>
                 <option value="NET_BANKING">Net Banking</option>
@@ -56,45 +67,41 @@
             </select>
         </div>
 
-        <button type="submit" style="width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 16px;">
-            Deposit Money
-        </button>
+        <div style="text-align: center;">
+            <button type="submit" class="btn">Deposit Money</button>
+        </div>
     </form>
 
-    <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+    <hr>
 
-    <h4 style="text-align: center; color: #333;">Quick Deposit</h4>
     <div style="text-align: center;">
-        <form action="DepositServlet" method="post" style="display: inline-block; margin: 5px;">
+        <h4>Quick Add Money</h4>
+        <p>Add money directly to your account</p>
+
+        <form action="DepositServlet" method="post" style="display: inline;">
             <input type="hidden" name="amount" value="500">
             <input type="hidden" name="paymentMethod" value="DIRECT_ADD">
             <input type="hidden" name="isQuickAdd" value="true">
-            <button type="submit" style="padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer;">
-                Add ₹500
-            </button>
+            <button type="submit" class="btn quick-btn">Add ₹500</button>
         </form>
 
-        <form action="DepositServlet" method="post" style="display: inline-block; margin: 5px;">
+        <form action="DepositServlet" method="post" style="display: inline;">
             <input type="hidden" name="amount" value="1000">
             <input type="hidden" name="paymentMethod" value="DIRECT_ADD">
             <input type="hidden" name="isQuickAdd" value="true">
-            <button type="submit" style="padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer;">
-                Add ₹1000
-            </button>
+            <button type="submit" class="btn quick-btn">Add ₹1000</button>
         </form>
 
-        <form action="DepositServlet" method="post" style="display: inline-block; margin: 5px;">
+        <form action="DepositServlet" method="post" style="display: inline;">
             <input type="hidden" name="amount" value="5000">
             <input type="hidden" name="paymentMethod" value="DIRECT_ADD">
             <input type="hidden" name="isQuickAdd" value="true">
-            <button type="submit" style="padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer;">
-                Add ₹5000
-            </button>
+            <button type="submit" class="btn quick-btn">Add ₹5000</button>
         </form>
     </div>
 
     <div style="text-align: center; margin-top: 20px;">
-        <a href="DashboardServlet" style="color: #007bff; text-decoration: none;">Back to Dashboard</a>
+        <a href="DashboardServlet">Back to Dashboard</a>
     </div>
 </div>
 
