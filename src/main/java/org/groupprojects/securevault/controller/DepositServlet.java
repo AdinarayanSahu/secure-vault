@@ -2,7 +2,6 @@ package org.groupprojects.securevault.controller;
 
 import org.groupprojects.securevault.dao.DepositDao;
 import java.io.IOException;
-import java.sql.SQLException;
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
