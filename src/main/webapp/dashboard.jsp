@@ -144,7 +144,7 @@
             <span>Transfer</span>
         </a>
 
-        <a href="statements.jsp" class="action-btn">
+        <a href="UserStatementsServlet" class="action-btn">
             <img src="icons/bank-statement.png" alt="Statements">
             <span>Statements</span>
         </a>
@@ -172,4 +172,3 @@
 
 </body>
 </html>
-
