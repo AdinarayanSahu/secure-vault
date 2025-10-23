@@ -20,6 +20,19 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
+        // Check for admin login first
+        if ("admin".equals(username) && "admin123".equals(password)) {
+            HttpSession session = request.getSession();
+            session.setAttribute("isAdmin", true);
+            session.setAttribute("username", "admin");
+            session.setAttribute("name", "Administrator");
+
+            // Redirect to admin dashboard (you can create this later)
+            response.sendRedirect("admin-dashboard.jsp");
+            return;
+        }
+
+        // Regular user login
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -41,6 +54,7 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("userId", userId);
                 session.setAttribute("username", username);
                 session.setAttribute("name", name);
+                session.setAttribute("isAdmin", false);
 
                 String accQuery = "SELECT account_no, name, balance FROM personal_account WHERE user_id = ?";
                 PreparedStatement ps2 = con.prepareStatement(accQuery);
