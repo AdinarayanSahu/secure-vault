@@ -159,7 +159,7 @@
             <span>Update KYC</span>
         </a>
 
-        <a href="profile.jsp" class="action-btn">
+        <a href="ProfileServlet" class="action-btn">
             <img src="icons/person.png" alt="Profile">
             <span>Profile</span>
         </a>
