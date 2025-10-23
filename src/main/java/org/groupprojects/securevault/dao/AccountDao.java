@@ -7,14 +7,12 @@ import java.util.List;
 
 public class AccountDao {
 
-    // Get database connection
     public static Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/smartbank_db", "root", "password");
     }
 
-    // Create new account and return success status
     public boolean createAccount(Account account) {
         String sql = "INSERT INTO personal_account (user_id, name, balance) VALUES (?, ?, ?)";
         try (Connection con = getConnection();
@@ -32,7 +30,6 @@ public class AccountDao {
         return false;
     }
 
-    // Get all accounts for a specific user
     public List<Account> getAccountsByUser(int userId) {
         List<Account> accounts = new ArrayList<>();
         String sql = "SELECT * FROM personal_account WHERE user_id=?";
@@ -54,7 +51,6 @@ public class AccountDao {
         return accounts;
     }
 
-    // Get account by user ID
     public Account getAccountByUserId(int userId) {
         Account account = null;
         String sql = "SELECT * FROM personal_account WHERE user_id = ?";
@@ -75,7 +71,6 @@ public class AccountDao {
         return account;
     }
 
-    // Get account by account number
     public Account getAccountByAccountNo(int accountNo) {
         Account account = null;
         String sql = "SELECT * FROM personal_account WHERE account_no = ?";
@@ -96,7 +91,6 @@ public class AccountDao {
         return account;
     }
 
-    // Deposit money to account with payment method
     public boolean depositMoney(int accountNo, double amount, String paymentMethod) {
         Connection con = null;
         try {
@@ -149,7 +143,6 @@ public class AccountDao {
         }
     }
 
-    // Deposit money with default online payment method
     public boolean depositMoney(int accountNo, double amount) {
         return depositMoney(accountNo, amount, "ONLINE");
     }

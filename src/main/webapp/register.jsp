@@ -36,21 +36,33 @@
         button:hover {
             background-color: #ffd700;
         }
+        .field-note {
+            font-size: 12px;
+            color: #f39c12;
+            margin-top: -5px;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
 <h2>Register Your SecureVault Account</h2>
 
-<form action="#" method="post">
+<form action="RegisterServlet" method="post">
     <input type="text" name="name" placeholder="Full Name" required><br>
     <input type="number" name="age" placeholder="Age" required><br>
     <input type="text" name="address" placeholder="Address" required><br>
     <input type="email" name="email" placeholder="Email" required><br>
+    <input type="text" name="phone" placeholder="Phone Number" required><br>
+    <input type="text" name="panNo" placeholder="PAN Number (e.g., ABCDE1234F)" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" required><br>
+    <div class="field-note">PAN format: 5 letters + 4 digits + 1 letter</div>
+    <input type="text" name="aadhaarNo" placeholder="Aadhaar Number (12 digits)" maxlength="12" pattern="[0-9]{12}" required><br>
+    <div class="field-note">Aadhaar must be exactly 12 digits</div>
     <input type="text" name="username" placeholder="Username" required><br>
     <input type="password" name="password" placeholder="Password" required><br>
     <button type="submit">Register</button>
 </form>
 
-<p>Already have an account? <a href="#" style="color: yellow;">Login here</a></p>
+<p><a href="login.jsp">Already have an account? Login here</a></p>
+
 </body>
 </html>

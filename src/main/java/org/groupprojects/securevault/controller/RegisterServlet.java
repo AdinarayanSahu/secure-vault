@@ -25,11 +25,22 @@ public class RegisterServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String phone = request.getParameter("phone");
+        String panNo = request.getParameter("panNo");
+        String aadhaarNo = request.getParameter("aadhaarNo");
 
-        System.out.println("DEBUG: Received registration request for user: " + username);
 
         if (phone == null || phone.trim().isEmpty()) {
             response.getWriter().println("Error: Phone number is required");
+            return;
+        }
+
+        if (panNo == null || panNo.trim().isEmpty()) {
+            response.getWriter().println("Error: PAN number is required");
+            return;
+        }
+
+        if (aadhaarNo == null || aadhaarNo.trim().isEmpty()) {
+            response.getWriter().println("Error: Aadhaar number is required");
             return;
         }
 
@@ -52,22 +63,22 @@ public class RegisterServlet extends HttpServlet {
             con = getConnection();
             con.setAutoCommit(false);
 
-            String userQuery = "INSERT INTO users (name, age, address, email, mobile) VALUES (?, ?, ?, ?, ?)";
+            String userQuery = "INSERT INTO users (name, age, address, email, mobile, pan_no, aadhaar_no) VALUES (?, ?, ?, ?, ?, ?, ?)";
             psUser = con.prepareStatement(userQuery, Statement.RETURN_GENERATED_KEYS);
             psUser.setString(1, name);
             psUser.setInt(2, age);
             psUser.setString(3, address);
             psUser.setString(4, email);
             psUser.setString(5, phone);
+            psUser.setString(6, panNo);
+            psUser.setString(7, aadhaarNo);
 
             int userRows = psUser.executeUpdate();
-            System.out.println("DEBUG: User insert affected rows: " + userRows);
 
             rs = psUser.getGeneratedKeys();
             int userId = 0;
             if (rs.next()) {
                 userId = rs.getInt(1);
-                System.out.println("DEBUG: Generated user_id: " + userId);
             }
 
             if (userId == 0) {
@@ -80,7 +91,6 @@ public class RegisterServlet extends HttpServlet {
             psLogin.setString(2, username);
             psLogin.setString(3, password);
             int loginRows = psLogin.executeUpdate();
-            System.out.println("DEBUG: Login insert affected rows: " + loginRows);
 
             String personalAccountQuery = "INSERT INTO personal_account (user_id, name, balance) VALUES (?, ?, ?)";
             PreparedStatement psPersonal = con.prepareStatement(personalAccountQuery, Statement.RETURN_GENERATED_KEYS);
@@ -88,13 +98,11 @@ public class RegisterServlet extends HttpServlet {
             psPersonal.setString(2, name);
             psPersonal.setDouble(3, 0.0);
             int accountRows = psPersonal.executeUpdate();
-            System.out.println("DEBUG: Account insert affected rows: " + accountRows);
 
             ResultSet rsAccount = psPersonal.getGeneratedKeys();
             int accountNo = 0;
             if (rsAccount.next()) {
                 accountNo = rsAccount.getInt(1);
-                System.out.println("DEBUG: Generated account_no: " + accountNo);
             }
 
             con.commit();
@@ -108,7 +116,6 @@ public class RegisterServlet extends HttpServlet {
             rsAccount.close();
             psPersonal.close();
 
-            System.out.println("DEBUG: Registration successful, redirecting to LandingServlet");
             response.sendRedirect("LandingServlet");
 
         } catch (Exception e) {

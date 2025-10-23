@@ -9,12 +9,12 @@ public class User {
     private String email;
     private String phone;
     private String address;
+    private String panNo;
+    private String aadhaarNo;
 
-    // Default constructor
     public User() {}
 
-    // Constructor with parameters
-    public User(String username, String password, String name, int age, String email, String phone, String address) {
+    public User(String username, String password, String name, int age, String email, String mobile, String address, String panNo, String aadhaarNo) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -22,9 +22,10 @@ public class User {
         this.email = email;
         this.phone = phone;
         this.address = address;
+        this.panNo = panNo;
+        this.aadhaarNo = aadhaarNo;
     }
 
-    // Getters and Setters
     public int getUserId() {
         return userId;
     }
@@ -77,8 +78,8 @@ public class User {
         return phone;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setPhone(String mobile) {
+        this.phone = mobile;
     }
 
     public String getAddress() {
@@ -89,6 +90,22 @@ public class User {
         this.address = address;
     }
 
+    public String getPanNo() {
+        return panNo;
+    }
+
+    public void setPanNo(String panNo) {
+        this.panNo = panNo;
+    }
+
+    public String getAadhaarNo() {
+        return aadhaarNo;
+    }
+
+    public void setAadhaarNo(String aadhaarNo) {
+        this.aadhaarNo = aadhaarNo;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -97,8 +114,10 @@ public class User {
                 ", name='" + name + '\'' +
                 ", age=" + age +
                 ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
+                ", mobile='" + phone + '\'' +
                 ", address='" + address + '\'' +
+                ", panNo='" + panNo + '\'' +
+                ", aadhaarNo='" + aadhaarNo + '\'' +
                 '}';
     }
 }
