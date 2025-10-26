@@ -149,7 +149,7 @@
             <span>Statements</span>
         </a>
 
-        <a href="loan.jsp" class="action-btn">
+        <a href="my-loans.jsp" class="action-btn">
             <img src="icons/loan.png" alt="Loan">
             <span>Loan</span>
         </a>
