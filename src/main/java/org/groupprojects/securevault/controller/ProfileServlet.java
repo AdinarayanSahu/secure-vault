@@ -36,12 +36,6 @@ public class ProfileServlet extends HttpServlet {
         Integer accountNo = (Integer) session.getAttribute("accountNo");
         Double balance = (Double) session.getAttribute("balance");
 
-        System.out.println("ProfileServlet DEBUG - Session attributes:");
-        System.out.println("userId: " + userId);
-        System.out.println("name: " + name);
-        System.out.println("accountNo: " + accountNo);
-        System.out.println("balance: " + balance);
-
         if (name == null) {
             name = "User";
             System.out.println("ProfileServlet WARNING: name is null, using fallback");
@@ -108,7 +102,7 @@ public class ProfileServlet extends HttpServlet {
         Integer userId = (Integer) session.getAttribute("userId");
 
         try {
-            // Update user profile (excluding PAN and Aadhaar - only editable by admin)
+
             String sql = "UPDATE users SET name=?, age=?, email=?, mobile=?, address=? WHERE user_id=?";
             try (Connection con = getConnection();
                  PreparedStatement ps = con.prepareStatement(sql)) {
@@ -131,7 +125,7 @@ public class ProfileServlet extends HttpServlet {
                 }
             }
 
-            // Fetch updated user data including PAN and Aadhaar
+
             String sql2 = "SELECT * FROM users WHERE user_id = ?";
             try (Connection con = getConnection();
                  PreparedStatement ps = con.prepareStatement(sql2)) {
