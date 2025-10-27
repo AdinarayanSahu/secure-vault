@@ -5,15 +5,15 @@ import java.sql.*;
 
 public class KYCDao {
 
-    // Update user KYC information
+
     public boolean updateKYC(String username, String email, String phone, String panNo, String aadhaarNo, String address) {
-        // First get the user_id from the login table using username
+
         String getUserIdSql = "SELECT user_id FROM login WHERE username = ?";
         String updateSql = "UPDATE users SET email=?, mobile=?, pan_no=?, aadhaar_no=?, address=? WHERE user_id=?";
 
         try (Connection con = DBConnection.getConnection()) {
 
-            // Get user_id from login table
+
             int userId = -1;
             try (PreparedStatement ps1 = con.prepareStatement(getUserIdSql)) {
                 ps1.setString(1, username);
@@ -47,7 +47,7 @@ public class KYCDao {
         }
     }
 
-    // Get KYC information for a user
+
     public boolean getKYCByUsername(String username) {
         // First get the user_id from the login table using username
         String getUserIdSql = "SELECT user_id FROM login WHERE username = ?";
@@ -55,7 +55,6 @@ public class KYCDao {
 
         try (Connection con = DBConnection.getConnection()) {
 
-            // Get user_id from login table
             int userId = -1;
             try (PreparedStatement ps1 = con.prepareStatement(getUserIdSql)) {
                 ps1.setString(1, username);
@@ -67,11 +66,11 @@ public class KYCDao {
                 }
             }
 
-            // Get KYC data from users table using user_id
+
             try (PreparedStatement ps2 = con.prepareStatement(getKYCSql)) {
                 ps2.setInt(1, userId);
                 ResultSet rs = ps2.executeQuery();
-                return rs.next(); // Returns true if user exists
+                return rs.next();
             }
 
         } catch (SQLException e) {
@@ -81,15 +80,15 @@ public class KYCDao {
         }
     }
 
-    // Check if user has complete KYC information
+
     public boolean isKYCComplete(String username) {
-        // First get the user_id from the login table using username
+
         String getUserIdSql = "SELECT user_id FROM login WHERE username = ?";
         String getKYCSql = "SELECT email, mobile, pan_no, aadhaar_no, address FROM users WHERE user_id=?";
 
         try (Connection con = DBConnection.getConnection()) {
 
-            // Get user_id from login table
+
             int userId = -1;
             try (PreparedStatement ps1 = con.prepareStatement(getUserIdSql)) {
                 ps1.setString(1, username);
@@ -101,7 +100,7 @@ public class KYCDao {
                 }
             }
 
-            // Check KYC completeness from users table using user_id
+
             try (PreparedStatement ps2 = con.prepareStatement(getKYCSql)) {
                 ps2.setInt(1, userId);
                 ResultSet rs = ps2.executeQuery();
@@ -113,7 +112,7 @@ public class KYCDao {
                     String aadhaarNo = rs.getString("aadhaar_no");
                     String address = rs.getString("address");
 
-                    // Check if all fields are non-null and not empty
+
                     return email != null && !email.trim().isEmpty() &&
                             mobile != null && !mobile.trim().isEmpty() &&
                             panNo != null && !panNo.trim().isEmpty() &&
