@@ -17,6 +17,7 @@ public class TransferDao {
         PreparedStatement ps2 = null;
         PreparedStatement ps3 = null;
         PreparedStatement ps4 = null;
+        PreparedStatement ps5 = null; // Added for transaction recording
 
         try {
             con = getConnection();
@@ -52,19 +53,33 @@ public class TransferDao {
             }
             rs2.close();
 
+            // Debit from sender account
             ps3 = con.prepareStatement("UPDATE personal_account SET balance = balance - ? WHERE account_no = ?");
             ps3.setDouble(1, amount);
             ps3.setInt(2, fromAccountNo);
             int debitRows = ps3.executeUpdate();
 
+            // Credit to recipient account
             ps4 = con.prepareStatement("UPDATE personal_account SET balance = balance + ? WHERE account_no = ?");
             ps4.setDouble(1, amount);
             ps4.setInt(2, toAccountNo);
             int creditRows = ps4.executeUpdate();
 
+            // Record the transaction in transactions table - FIXED WITH transaction_type
             if (debitRows > 0 && creditRows > 0) {
-                flag = true;
-                System.out.println("DEBUG: Transfer successful - ₹" + amount + " from " + fromAccountNo + " to " + toAccountNo);
+                ps5 = con.prepareStatement("INSERT INTO transactions (from_account, to_account, amount, transaction_type, description, status, transaction_date) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+                ps5.setInt(1, fromAccountNo);
+                ps5.setInt(2, toAccountNo);
+                ps5.setDouble(3, amount);
+                ps5.setString(4, "TRANSFER"); // Added the missing transaction_type field
+                ps5.setString(5, "Money Transfer");
+                ps5.setString(6, "COMPLETED");
+                int transactionRows = ps5.executeUpdate();
+
+                if (transactionRows > 0) {
+                    flag = true;
+                    System.out.println("DEBUG: Transfer successful - ₹" + amount + " from " + fromAccountNo + " to " + toAccountNo);
+                }
             }
 
         } catch (Exception e) {
@@ -82,6 +97,7 @@ public class TransferDao {
                 if (ps2 != null) ps2.close();
                 if (ps3 != null) ps3.close();
                 if (ps4 != null) ps4.close();
+                if (ps5 != null) ps5.close(); // Close the new PreparedStatement
                 con.close();
             } catch (Exception e) {
                 e.printStackTrace();
