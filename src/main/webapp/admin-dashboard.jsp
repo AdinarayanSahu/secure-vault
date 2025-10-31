@@ -45,6 +45,7 @@
         <a href="AdminServlet?action=addUser" class="btn green">Add User</a>
         <a href="AdminServlet?action=getAllStatements" class="btn orange">View Statements</a>
         <a href="AdminServlet?action=deleteAllUsers" class="btn red">Delete Users</a>
+        <a href=""
         <a href="index.jsp" class="btn gray">Logout</a>
     </div>
 
