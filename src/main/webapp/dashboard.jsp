@@ -4,108 +4,38 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SecureVault</title>
+    <link rel="stylesheet" href="styles/securevault.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .header h2 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .balance {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            text-align: center;
-            margin: 20px 0;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-        }
-
-        .balance h3 {
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-
-        .dashboard-actions {
+        /* Override quick-actions to display 3 cards per row */
+        .quick-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
-            margin: 30px 0;
+            margin: 20px 0;
         }
 
-        .action-btn {
-            background: white;
-            padding: 30px 20px;
-            border-radius: 8px;
-            text-align: center;
+        .quick-action-card {
             text-decoration: none;
-            color: #2c3e50;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            color: inherit;
         }
 
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            color: #2c3e50;
-        }
-
-        .action-btn img {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 15px;
-        }
-
-        .action-btn span {
-            display: block;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .logout-section {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-        }
-
-        .logout-btn {
-            background-color: #e74c3c;
-            color: white;
-            padding: 12px 25px;
+        .quick-action-card:hover {
             text-decoration: none;
-            border-radius: 5px;
         }
 
-        .logout-btn:hover {
-            background-color: #c0392b;
-            color: white;
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -122,53 +52,73 @@
     }
 %>
 
-<div class="container">
-    <div class="header">
-        <h2>Welcome, <%= name %></h2>
-        <p>Account: <%= accountNo %></p>
+<header>
+    <h1>🏦 SecureVault Dashboard</h1>
+</header>
+
+<main class="container">
+    <div class="user-info">
+        <h3>Welcome, <%= name %></h3>
+        <p>Account Number: <%= accountNo %></p>
     </div>
 
-    <div class="balance">
+    <div class="balance-card">
         <h3>Current Balance</h3>
-        <div style="font-size: 36px; font-weight: bold;">₹ <%= String.format("%.2f", balance) %></div>
+        <div class="balance-amount">₹ <%= String.format("%.2f", balance) %></div>
     </div>
 
-    <div class="dashboard-actions">
-        <a href="deposit.jsp" class="action-btn">
+    <div class="quick-actions">
+        <a href="deposit.jsp" class="quick-action-card">
             <img src="icons/deposit.png" alt="Deposit">
-            <span>Deposit</span>
+            <h4>Deposit</h4>
+            <p>Add money to your account</p>
         </a>
 
-        <a href="transfer.jsp" class="action-btn">
+        <a href="transfer.jsp" class="quick-action-card">
             <img src="icons/money.png" alt="Transfer">
-            <span>Transfer</span>
+            <h4>Transfer</h4>
+            <p>Send money to others</p>
         </a>
 
-        <a href="UserStatementsServlet" class="action-btn">
+        <a href="UserStatementsServlet" class="quick-action-card">
             <img src="icons/bank-statement.png" alt="Statements">
-            <span>Statements</span>
+            <h4>Statements</h4>
+            <p>View transaction history</p>
         </a>
 
-        <a href="my-loans.jsp" class="action-btn">
+        <a href="my-loans.jsp" class="quick-action-card">
             <img src="icons/loan.png" alt="Loan">
-            <span>Loan</span>
+            <h4>Loans</h4>
+            <p>Manage your loans</p>
         </a>
 
-        <a href="kyc.jsp" class="action-btn">
+        <a href="kyc.jsp" class="quick-action-card">
             <img src="icons/kyc.png" alt="KYC">
-            <span>Update KYC</span>
+            <h4>Update KYC</h4>
+            <p>Update your information</p>
         </a>
 
-        <a href="ProfileServlet" class="action-btn">
+        <a href="ProfileServlet" class="quick-action-card">
             <img src="icons/person.png" alt="Profile">
-            <span>Profile</span>
+            <h4>Profile</h4>
+            <p>View and edit profile</p>
         </a>
     </div>
 
-    <div class="logout-section">
-        <a href="index.jsp" class="logout-btn">Logout</a>
+    <div class="content-section">
+        <a href="index.jsp" class="btn btn-danger">Logout</a>
     </div>
-</div>
+</main>
+
+<footer>
+    <div class="footer-links">
+        <a href="#about">About Us</a>
+        <a href="#contact">Contact</a>
+        <a href="#help">Help</a>
+        <a href="#privacy">Privacy Policy</a>
+    </div>
+    <p>&copy; 2025 SecureVault. All rights reserved.</p>
+</footer>
 
 </body>
 </html>

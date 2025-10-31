@@ -4,20 +4,9 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Deposit Money</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 5px; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box; }
-        .btn { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; margin: 5px; }
-        .btn:hover { background: #0056b3; }
-        .quick-btn { background: #28a745; }
-        .quick-btn:hover { background: #218838; }
-        .error { color: red; margin: 10px 0; }
-        .success { color: green; margin: 10px 0; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Money - SecureVault</title>
+    <link rel="stylesheet" href="styles/securevault.css">
 </head>
 <body>
 
@@ -32,78 +21,71 @@
     }
 %>
 
-<div class="container">
-    <div class="header">
-        <h2>Deposit Money</h2>
-        <p>Account: <%= accountNo %> | Balance: ₹ <%= balance %></p>
+<header>
+    <h1>🏦 SecureVault - Deposit</h1>
+</header>
+
+<main class="container">
+    <div class="user-info">
+        <h3>Deposit Money</h3>
+        <p>Account: <%= accountNo %> | Current Balance: ₹ <%= String.format("%.2f", balance) %></p>
     </div>
 
     <% if (request.getAttribute("error") != null) { %>
-        <div class="error"><%= request.getAttribute("error") %></div>
+        <div class="alert alert-error"><%= request.getAttribute("error") %></div>
     <% } %>
 
     <% if (request.getAttribute("success") != null) { %>
-        <div class="success">
+        <div class="alert alert-success">
             <%= request.getAttribute("success") %>
             <br>New Balance: ₹ <%= request.getAttribute("newBalance") %>
         </div>
     <% } %>
 
-    <form action="DepositServlet" method="post">
-        <div class="form-group">
-            <label>Amount to Deposit:</label>
-            <input type="number" name="amount" placeholder="Enter amount" required min="1" max="100000" step="0.01">
-        </div>
+    <div class="content-section">
+        <h2>Add Money to Your Account</h2>
 
-        <div class="form-group">
-            <label>Payment Method:</label>
-            <select name="paymentMethod" required>
-                <option value="">Select Payment Method</option>
-                <option value="UPI">UPI</option>
-                <option value="NET_BANKING">Net Banking</option>
-                <option value="DEBIT_CARD">Debit Card</option>
-                <option value="CREDIT_CARD">Credit Card</option>
-                <option value="CASH">Cash</option>
-            </select>
-        </div>
+        <form action="DepositServlet" method="post">
+            <div class="form-group">
+                <label>Amount to Deposit:</label>
+                <input type="number" name="amount" placeholder="Enter amount" required min="1" max="100000" step="0.01">
+            </div>
 
-        <div style="text-align: center;">
-            <button type="submit" class="btn">Deposit Money</button>
-        </div>
-    </form>
+            <div class="form-group">
+                <label>Payment Method:</label>
+                <select name="paymentMethod" required>
+                    <option value="">Select Payment Method</option>
+                    <option value="UPI">UPI</option>
+                    <option value="NET_BANKING">Net Banking</option>
+                    <option value="DEBIT_CARD">Debit Card</option>
+                    <option value="CREDIT_CARD">Credit Card</option>
+                    <option value="CASH">Cash</option>
+                </select>
+            </div>
 
-    <hr>
-
-    <div style="text-align: center;">
-        <h4>Quick Add Money</h4>
-        <p>Add money directly to your account</p>
-
-        <form action="DepositServlet" method="post" style="display: inline;">
-            <input type="hidden" name="amount" value="500">
-            <input type="hidden" name="paymentMethod" value="DIRECT_ADD">
-            <input type="hidden" name="isQuickAdd" value="true">
-            <button type="submit" class="btn quick-btn">Add ₹500</button>
-        </form>
-
-        <form action="DepositServlet" method="post" style="display: inline;">
-            <input type="hidden" name="amount" value="1000">
-            <input type="hidden" name="paymentMethod" value="DIRECT_ADD">
-            <input type="hidden" name="isQuickAdd" value="true">
-            <button type="submit" class="btn quick-btn">Add ₹1000</button>
-        </form>
-
-        <form action="DepositServlet" method="post" style="display: inline;">
-            <input type="hidden" name="amount" value="5000">
-            <input type="hidden" name="paymentMethod" value="DIRECT_ADD">
-            <input type="hidden" name="isQuickAdd" value="true">
-            <button type="submit" class="btn quick-btn">Add ₹5000</button>
+            <button type="submit" class="btn btn-primary">Deposit Money</button>
         </form>
     </div>
 
-    <div style="text-align: center; margin-top: 20px;">
-        <a href="DashboardServlet">Back to Dashboard</a>
+
+    <div class="navigation">
+        <div class="nav-links">
+            <a href="dashboard.jsp">Back to Dashboard</a>
+            <a href="transfer.jsp">Transfer Money</a>
+            <a href="UserStatementsServlet">View Statements</a>
+        </div>
     </div>
-</div>
+</main>
+
+<footer>
+    <div class="footer-links">
+        <a href="#about">About Us</a>
+        <a href="#contact">Contact</a>
+        <a href="#help">Help</a>
+        <a href="#privacy">Privacy Policy</a>
+    </div>
+    <p>&copy; 2025 SecureVault. All rights reserved.</p>
+</footer>
 
 </body>
 </html>
