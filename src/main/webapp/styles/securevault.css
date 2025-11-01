@@ -1,4 +1,3 @@
-
 * {
     margin: 0;
     padding: 0;
@@ -290,5 +289,76 @@ footer {
     .btn {
         padding: 12px 20px;
         font-size: 14px;
+    }
+}
+
+/* Transaction Amount Colors - HIGHLY SPECIFIC SELECTORS TO OVERRIDE TABLE STYLES */
+table tbody tr td.transaction-amount.amount-positive,
+.table-container table td.amount-positive,
+table td.amount-positive,
+.amount-positive {
+    color: #27ae60 !important; /* Green for credits */
+    font-weight: bold !important;
+}
+
+table tbody tr td.transaction-amount.amount-negative,
+.table-container table td.amount-negative,
+table td.amount-negative,
+.amount-negative {
+    color: #e74c3c !important; /* Red for debits */
+    font-weight: bold !important;
+}
+
+/* Even more specific for transaction amounts */
+.table-container .transaction-amount.amount-positive {
+    color: #27ae60 !important;
+}
+
+.table-container .transaction-amount.amount-negative {
+    color: #e74c3c !important;
+}
+
+/* Transaction Specific Styles */
+.transaction-date {
+    font-size: 14px;
+    color: #666;
+}
+
+.transaction-type {
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.transaction-amount {
+    font-weight: bold;
+    text-align: right;
+}
+
+.transaction-description {
+    color: #555;
+    font-style: italic;
+}
+
+.statement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.no-transactions {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.no-transactions p {
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .statement-header {
+        flex-direction: column;
+        text-align: center;
     }
 }

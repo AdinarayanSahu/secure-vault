@@ -7,145 +7,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Statements - SecureVault</title>
-    <link rel="stylesheet" href="assets/css/main.css">
-    <style>
-        .statement-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-        .statement-info span {
-            font-weight: bold;
-        }
-        .transaction-list {
-            background: white;
-            border-radius: 5px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .transaction-header {
-            background: #2c3e50;
-            color: white;
-            padding: 15px;
-            font-weight: bold;
-        }
-        .transaction-item {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            display: grid;
-            grid-template-columns: 100px 1fr 100px 1fr;
-            gap: 15px;
-            align-items: center;
-        }
-        .transaction-item:last-child {
-            border-bottom: none;
-        }
-        .transaction-item:hover {
-            background: #f9f9f9;
-        }
-        .transaction-date {
-            font-size: 14px;
-            color: #666;
-        }
-        .transaction-type {
-            font-weight: bold;
-        }
-        .transaction-amount {
-            text-align: right;
-            font-weight: bold;
-        }
-        .amount-positive {
-            color: #28a745;
-        }
-        .amount-negative {
-            color: #dc3545;
-        }
-        .no-transactions {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        .back-link {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .back-link a {
-            color: #2c3e50;
-            text-decoration: none;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/securevault.css">
 </head>
 <body>
 
 <%
-    String userName = (String) request.getAttribute("userName");
-    Integer accountNo = (Integer) request.getAttribute("accountNo");
-    Double balance = (Double) request.getAttribute("balance");
-    List<String> transactions = (List<String>) request.getAttribute("transactions");
+    String name = (String) session.getAttribute("name");
+    Integer accountNo = (Integer) session.getAttribute("accountNo");
+    Double balance = (Double) session.getAttribute("balance");
+
+    if (name == null || accountNo == null || balance == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
 %>
 
 <header>
-    <div class="container">
-        <h1>🏦 Account Statements</h1>
-    </div>
+    <h1>🏦 SecureVault - Account Statements</h1>
 </header>
 
 <main class="container">
-    <div class="welcome-section">
-        <div class="statement-info">
-            <span>Account: <%= userName != null ? userName : "-" %> (#<%= accountNo != null ? accountNo : "-" %>)</span>
-            <span>Balance: ₹ <%= balance != null ? String.format("%.2f", balance) : "0.00" %></span>
+    <div class="user-info">
+        <h3>Account Statements</h3>
+        <p>Account: <%= accountNo %> | Name: <%= name %></p>
+    </div>
+
+    <div class="balance-card">
+        <h3>Current Balance</h3>
+        <div class="balance-amount">₹ <%= String.format("%.2f", balance) %></div>
+    </div>
+
+    <div class="table-container">
+        <h3>Transaction History</h3>
+
+        <%
+            List<String> transactions = (List<String>) request.getAttribute("transactions");
+            if (transactions != null && !transactions.isEmpty()) {
+        %>
+        <table>
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Balance After</th>
+            </tr>
+            </thead>
+            <tbody>
+            <%
+                // Transactions come from DB in DESC order (newest first)
+                // Start with current balance and work backwards
+                double currentBalance = balance;
+
+                for (String transaction : transactions) {
+                    String[] parts = transaction.split(" \\| ");
+                    if (parts.length >= 4) {
+                        String date = parts[0].trim();
+                        String type = parts[1].trim();
+                        String amountStr = parts[2].trim();
+                        String description = parts[3].trim();
+
+                        // Parse amount
+                        double amount = 0.0;
+                        try {
+                            String cleanAmount = amountStr.replace("₹", "").trim();
+                            amount = Double.parseDouble(cleanAmount);
+                        } catch (NumberFormatException e) {
+                            amount = 0.0;
+                        }
+
+                        // Determine if credit or debit for display
+                        boolean isCredit = false;
+                        if (type.equals("Transfer In") || type.equals("Deposit")) {
+                            isCredit = true;
+                        } else if (type.equals("Transfer Out")) {
+                            isCredit = false;
+                        }
+
+                        // Set CSS class and inline styles for color coding
+                        String amountClass = isCredit ? "amount-positive" : "amount-negative";
+                        String amountPrefix = isCredit ? "+" : "-";
+                        String displayAmount = String.format("%.2f", amount);
+                        String inlineStyle = isCredit ? "color: #27ae60 !important; font-weight: bold !important;" : "color: #e74c3c !important; font-weight: bold !important;";
+
+                        // Display the balance AFTER this transaction (current balance for newest)
+                        double balanceAfterTransaction = currentBalance;
+            %>
+            <tr>
+                <td class="transaction-date"><%= date %></td>
+                <td class="transaction-type"><%= type %></td>
+                <td class="transaction-description"><%= description %></td>
+                <td class="transaction-amount <%= amountClass %>" style="<%= inlineStyle %>">
+                    <%= amountPrefix %>₹<%= displayAmount %>
+                </td>
+                <td>₹ <%= String.format("%.2f", balanceAfterTransaction) %></td>
+            </tr>
+            <%
+                        // Calculate balance BEFORE this transaction for next iteration
+                        // Since we're going backwards in time (DESC order):
+                        if (type.equals("Transfer In") || type.equals("Deposit")) {
+                            currentBalance -= amount; // Remove credit to get previous balance
+                        } else if (type.equals("Transfer Out")) {
+                            currentBalance += amount; // Add back debit to get previous balance
+                        }
+                    }
+                }
+            %>
+            </tbody>
+        </table>
+        <%
+        } else {
+        %>
+        <div class="no-transactions">
+            <p><strong>No transactions found for your account.</strong></p>
+            <p>Start by making a deposit or transfer to see your transaction history.</p>
         </div>
+        <%
+            }
+        %>
+    </div>
 
-        <div class="transaction-list">
-            <div class="transaction-header">Recent Transactions</div>
-
-            <% if (transactions != null && !transactions.isEmpty()) { %>
-                <% for (String transaction : transactions) { %>
-                    <%
-                        String[] parts = transaction.split(" \\| ");
-                        if (parts.length >= 4) {
-                            String date = parts[0];
-                            String type = parts[1];
-                            String amount = parts[2];
-                            String description = parts[3];
-
-                            String amountClass = "";
-                            if (type.contains("Deposit") || type.contains("Transfer In")) {
-                                amountClass = "amount-positive";
-                            } else {
-                                amountClass = "amount-negative";
-                            }
-                    %>
-                    <div class="transaction-item">
-                        <div class="transaction-date"><%= date %></div>
-                        <div class="transaction-type"><%= type %></div>
-                        <div class="transaction-amount <%= amountClass %>"><%= amount %></div>
-                        <div class="transaction-description"><%= description %></div>
-                    </div>
-                    <% } %>
-                <% } %>
-            <% } else { %>
-                <div class="no-transactions">
-                    <p>No transactions found.</p>
-                </div>
-            <% } %>
-        </div>
-
-        <div class="back-link">
-            <a href="DashboardServlet">← Back to Dashboard</a>
+    <div class="navigation">
+        <div class="nav-links">
+            <a href="DashboardServlet" class="btn">Back to Dashboard</a>
+            <a href="deposit.jsp" class="btn btn-success">Deposit Money</a>
+            <a href="transfer.jsp" class="btn btn-warning">Transfer Money</a>
         </div>
     </div>
 </main>
 
 <footer>
-    <div class="container">
-        <p>&copy; 2025 SecureVault. All rights reserved.</p>
+    <div class="footer-links">
+        <a href="dashboard.jsp">Dashboard</a>
+        <a href="profile.jsp">Profile</a>
+        <a href="LoginServlet?action=logout">Logout</a>
     </div>
+    <p>&copy; 2025 SecureVault. All rights reserved.</p>
 </footer>
 
 </body>
