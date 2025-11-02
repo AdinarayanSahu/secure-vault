@@ -41,53 +41,63 @@ public class LoginServlet extends HttpServlet {
             response.sendRedirect("AdminServlet");
             return;
         }
-
-        // Regular user login
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
             con = getConnection();
-            ps = con.prepareStatement("SELECT * FROM users WHERE email = ? AND password = ?");
+
+            String query = "SELECT u.user_id, u.name FROM login l JOIN users u ON l.user_id = u.user_id WHERE l.username = ? AND l.password = ?";
+            ps = con.prepareStatement(query);
             ps.setString(1, username);
             ps.setString(2, password);
             rs = ps.executeQuery();
 
             if (rs.next()) {
+                int userId = rs.getInt("user_id");
+                String name = rs.getString("name");
+
                 HttpSession session = request.getSession();
-                session.setAttribute("userId", rs.getInt("user_id"));
-                session.setAttribute("name", rs.getString("name"));
-                session.setAttribute("email", rs.getString("email"));
+                session.setAttribute("userId", userId);
+                session.setAttribute("username", username);
+                session.setAttribute("name", name);
                 session.setAttribute("isAdmin", false);
 
-                // Get account info
-                PreparedStatement accountPs = con.prepareStatement("SELECT account_no, balance FROM accounts WHERE user_id = ?");
-                accountPs.setInt(1, rs.getInt("user_id"));
-                ResultSet accountRs = accountPs.executeQuery();
+                String accQuery = "SELECT account_no, name, balance FROM personal_account WHERE user_id = ?";
+                PreparedStatement ps2 = con.prepareStatement(accQuery);
+                ps2.setInt(1, userId);
+                ResultSet rs2 = ps2.executeQuery();
 
-                if (accountRs.next()) {
-                    session.setAttribute("accountNo", accountRs.getInt("account_no"));
-                    session.setAttribute("balance", accountRs.getDouble("balance"));
+                if (rs2.next()) {
+                    int accountNo = rs2.getInt("account_no");
+                    String accountName = rs2.getString("name");
+                    double balance = rs2.getDouble("balance");
+
+                    session.setAttribute("accountNo", accountNo);
+                    session.setAttribute("name", accountName);
+                    session.setAttribute("balance", balance);
                 }
 
-                response.sendRedirect("DashboardServlet");
+                rs2.close();
+                ps2.close();
+
+                response.sendRedirect("dashboard.jsp");
+
             } else {
-                request.setAttribute("error", "Invalid username or password");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
+                response.getWriter().println("<h3>Invalid username or password. <a href='login.jsp'>Try again</a></h3>");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Database connection error");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            response.getWriter().println("Error: " + e.getMessage());
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (ps != null) ps.close();
                 if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }
