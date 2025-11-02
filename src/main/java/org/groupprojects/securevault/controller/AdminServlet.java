@@ -37,6 +37,13 @@ public class AdminServlet extends HttpServlet {
                     request.getRequestDispatcher("admin-dashboard.jsp").forward(request, response);
                     break;
 
+                case "viewUser":
+                    int viewUserId = Integer.parseInt(request.getParameter("userId"));
+                    User user = adminDao.getUserById(viewUserId);
+                    request.setAttribute("user", user);
+                    request.getRequestDispatcher("admin-user-details.jsp").forward(request, response);
+                    break;
+
                 case "getAllStatements":
                     List<String> statements = adminDao.getAllStatements();
                     request.setAttribute("statements", statements);

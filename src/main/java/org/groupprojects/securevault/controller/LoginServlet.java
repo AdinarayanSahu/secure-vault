@@ -1,13 +1,22 @@
 package org.groupprojects.securevault.controller;
 
 import java.io.IOException;
-import java.sql.*;
-import javax.servlet.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
+
     public static Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(
@@ -26,9 +35,10 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("isAdmin", true);
             session.setAttribute("username", "admin");
             session.setAttribute("name", "Administrator");
+            session.setAttribute("userId", 1); // Add userId for proper session handling
 
-            // Redirect to admin dashboard (you can create this later)
-            response.sendRedirect("admin-dashboard.jsp");
+            // Redirect to AdminServlet instead of directly to JSP
+            response.sendRedirect("AdminServlet");
             return;
         }
 
@@ -39,57 +49,45 @@ public class LoginServlet extends HttpServlet {
 
         try {
             con = getConnection();
-
-            String query = "SELECT u.user_id, u.name FROM login l JOIN users u ON l.user_id = u.user_id WHERE l.username = ? AND l.password = ?";
-            ps = con.prepareStatement(query);
+            ps = con.prepareStatement("SELECT * FROM users WHERE email = ? AND password = ?");
             ps.setString(1, username);
             ps.setString(2, password);
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                int userId = rs.getInt("user_id");
-                String name = rs.getString("name");
-
                 HttpSession session = request.getSession();
-                session.setAttribute("userId", userId);
-                session.setAttribute("username", username);
-                session.setAttribute("name", name);
+                session.setAttribute("userId", rs.getInt("user_id"));
+                session.setAttribute("name", rs.getString("name"));
+                session.setAttribute("email", rs.getString("email"));
                 session.setAttribute("isAdmin", false);
 
-                String accQuery = "SELECT account_no, name, balance FROM personal_account WHERE user_id = ?";
-                PreparedStatement ps2 = con.prepareStatement(accQuery);
-                ps2.setInt(1, userId);
-                ResultSet rs2 = ps2.executeQuery();
+                // Get account info
+                PreparedStatement accountPs = con.prepareStatement("SELECT account_no, balance FROM accounts WHERE user_id = ?");
+                accountPs.setInt(1, rs.getInt("user_id"));
+                ResultSet accountRs = accountPs.executeQuery();
 
-                if (rs2.next()) {
-                    int accountNo = rs2.getInt("account_no");
-                    String accountName = rs2.getString("name");
-                    double balance = rs2.getDouble("balance");
-
-                    session.setAttribute("accountNo", accountNo);
-                    session.setAttribute("name", accountName);
-                    session.setAttribute("balance", balance);
+                if (accountRs.next()) {
+                    session.setAttribute("accountNo", accountRs.getInt("account_no"));
+                    session.setAttribute("balance", accountRs.getDouble("balance"));
                 }
 
-                rs2.close();
-                ps2.close();
-
-                response.sendRedirect("dashboard.jsp");
-
+                response.sendRedirect("DashboardServlet");
             } else {
-                response.getWriter().println("<h3>Invalid username or password. <a href='login.jsp'>Try again</a></h3>");
+                request.setAttribute("error", "Invalid username or password");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().println("Error: " + e.getMessage());
+            request.setAttribute("error", "Database connection error");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (ps != null) ps.close();
                 if (con != null) con.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
