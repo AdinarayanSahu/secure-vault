@@ -174,6 +174,7 @@
             display: flex;
             gap: 20px;
             margin-top: 15px;
+            flex-wrap: wrap;
         }
 
         .stat-badge {
@@ -261,6 +262,80 @@
             opacity: 0.5;
         }
 
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn i {
+            margin-right: 6px;
+        }
+
+        .btn-primary {
+            background: #74b9ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0984e3;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #00b894;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #00a085;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-warning {
+            background: #fdcb6e;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #f39c12;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 250px;
@@ -270,6 +345,10 @@
             .main-content {
                 margin-left: 0;
                 width: 100%;
+            }
+
+            .user-stats {
+                flex-direction: column;
             }
         }
     </style>
@@ -332,18 +411,28 @@
                 <h1><i class="fas fa-crown"></i> Admin Dashboard</h1>
                 <div class="breadcrumb">
                     <i class="fas fa-home"></i> Home /
-                    <%= "getAllUsers".equals(request.getParameter("action")) ? "User Management" : "Dashboard" %>
+                    <%
+                    String action = request.getParameter("action");
+                    if ("getAllUsers".equals(action)) { %>
+                        User Management
+                    <% } else if ("getAllStatements".equals(action)) { %>
+                        View Statements
+                    <% } else if ("viewUserStatements".equals(action)) { %>
+                        User Statements
+                    <% } else { %>
+                        Dashboard
+                    <% } %>
                 </div>
             </div>
 
             <!-- Messages -->
             <% if (request.getAttribute("success") != null) { %>
-            <div class="alert alert-success" style="margin-bottom: 20px;">
+            <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i> <%= request.getAttribute("success") %>
             </div>
             <% } %>
             <% if (request.getAttribute("error") != null) { %>
-            <div class="alert alert-error" style="margin-bottom: 20px;">
+            <div class="alert alert-error">
                 <i class="fas fa-exclamation-circle"></i> <%= request.getAttribute("error") %>
             </div>
             <% } %>
@@ -402,6 +491,11 @@
                                        style="padding: 6px 12px; font-size: 12px; border-radius: 15px; margin-right: 8px;">
                                         <i class="fas fa-eye"></i> View
                                     </a>
+                                    <a href="AdminServlet?action=viewUserStatements&userId=<%= user.getUserId() %>"
+                                       class="btn btn-primary"
+                                       style="padding: 6px 12px; font-size: 12px; border-radius: 15px; margin-right: 8px;">
+                                        <i class="fas fa-file-alt"></i> Statements
+                                    </a>
                                     <a href="AdminServlet?action=deleteUser&userId=<%= user.getUserId() %>"
                                        class="btn btn-danger"
                                        onclick="return confirm('Are you sure you want to delete user: <%= user.getName() %>?')"
@@ -422,6 +516,112 @@
                 </div>
                 <% } %>
             </div>
+
+            <!-- All Statements Section -->
+            <% } else if (request.getAttribute("showStatements") != null && (Boolean)request.getAttribute("showStatements")) {
+                List<String> statements = (List<String>) request.getAttribute("statements");
+            %>
+            <div class="data-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-file-alt"></i> All Transaction Statements</h2>
+                    <p style="color: #7f8c8d; margin: 10px 0 0 0;">Complete transaction history across all users</p>
+                    <div class="user-stats">
+                        <span class="stat-badge">
+                            <i class="fas fa-receipt"></i> Total Statements: <%= statements != null ? statements.size() : 0 %>
+                        </span>
+                        <span class="stat-badge" style="background: #55efc4;">
+                            <i class="fas fa-clock"></i> Recent 100
+                        </span>
+                    </div>
+                </div>
+
+                <% if (statements != null && !statements.isEmpty()) { %>
+                <div class="statements-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag"></i> Statement Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (String statement : statements) { %>
+                            <tr>
+                                <td>
+                                    <div style="font-family: 'Courier New', monospace; font-size: 14px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #74b9ff;">
+                                        <%= statement %>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <% } else { %>
+                <div class="no-users">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>No Statements Found</h3>
+                    <p>There are currently no transaction statements in the system.</p>
+                </div>
+                <% } %>
+            </div>
+
+            <!-- Individual User Statements Section -->
+            <% } else if (request.getAttribute("showUserStatements") != null && (Boolean)request.getAttribute("showUserStatements")) {
+                User user = (User) request.getAttribute("user");
+                List<String> userStatements = (List<String>) request.getAttribute("userStatements");
+            %>
+            <div class="data-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-user"></i> <%= user.getName() %>'s Transaction Statements</h2>
+                    <p style="color: #7f8c8d; margin: 10px 0 0 0;">Transaction history for User ID: #<%= user.getUserId() %></p>
+                    <div class="user-stats">
+                        <span class="stat-badge">
+                            <i class="fas fa-receipt"></i> Total Statements: <%= userStatements != null ? userStatements.size() : 0 %>
+                        </span>
+                        <span class="stat-badge" style="background: #fdcb6e;">
+                            <i class="fas fa-user"></i> <%= user.getName() %>
+                        </span>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <a href="AdminServlet?action=getAllUsers" class="btn btn-primary" style="margin-right: 10px;">
+                            <i class="fas fa-arrow-left"></i> Back to Users
+                        </a>
+                        <a href="AdminServlet?action=viewUser&userId=<%= user.getUserId() %>" class="btn btn-success">
+                            <i class="fas fa-eye"></i> View User Details
+                        </a>
+                    </div>
+                </div>
+
+                <% if (userStatements != null && !userStatements.isEmpty()) { %>
+                <div class="statements-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag"></i> Transaction Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (String statement : userStatements) { %>
+                            <tr>
+                                <td>
+                                    <div style="font-family: 'Courier New', monospace; font-size: 14px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #74b9ff;">
+                                        <%= statement %>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <% } else { %>
+                <div class="no-users">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>No Statements Found</h3>
+                    <p>This user has no transaction statements yet.</p>
+                </div>
+                <% } %>
+            </div>
+
             <% } else { %>
             <!-- Default Dashboard View -->
             <div class="quick-actions">
