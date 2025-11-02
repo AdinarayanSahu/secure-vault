@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="org.groupprojects.securevault.model.User" %>
+<%@ page import="org.groupprojects.securevault.model.Loan" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -377,6 +378,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="AdminServlet?action=viewPendingLoans" class="nav-link <%= "viewPendingLoans".equals(request.getParameter("action")) ? "active" : "" %>">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        Loan Approvals
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="KYCRequestServlet" class="nav-link">
                         <i class="fas fa-id-card"></i>
                         KYC Requests
@@ -664,7 +671,140 @@
                 </div>
             </div>
             <% } %>
+
+            <!-- Loan Approval Section -->
+            <% if (request.getAttribute("showPendingLoans") != null) { %>
+                <div class="data-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-hand-holding-usd"></i> Pending Loan Applications</h2>
+                        <p>Review and approve/reject user loan applications</p>
+                    </div>
+
+                    <%
+                        @SuppressWarnings("unchecked")
+                        List<Loan> pendingLoans = (List<Loan>) request.getAttribute("pendingLoans");
+                        if (pendingLoans != null && !pendingLoans.isEmpty()) {
+                    %>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Loan ID</th>
+                                    <th>User Details</th>
+                                    <th>Loan Type</th>
+                                    <th>Amount</th>
+                                    <th>Interest Rate</th>
+                                    <th>Tenure</th>
+                                    <th>Monthly EMI</th>
+                                    <th>Purpose</th>
+                                    <th>Applied Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% for (Loan loan : pendingLoans) { %>
+                                    <tr>
+                                        <td><strong>#<%= loan.getLoanId() %></strong></td>
+                                        <td>
+                                            <div style="font-weight: bold;"><%= loan.getUserName() %></div>
+                                            <div style="font-size: 12px; color: #666;"><%= loan.getUserEmail() %></div>
+                                            <div style="font-size: 12px; color: #888;">Account: <%= loan.getAccountNo() %></div>
+                                        </td>
+                                        <td><%= loan.getLoanTypeName() %></td>
+                                        <td><strong>₹<%= String.format("%.2f", loan.getLoanAmount()) %></strong></td>
+                                        <td><%= loan.getInterestRate() %>%</td>
+                                        <td><%= loan.getTenureMonths() %> months</td>
+                                        <td>₹<%= String.format("%.2f", loan.getMonthlyEmi()) %></td>
+                                        <td><%= loan.getPurpose() %></td>
+                                        <td><%= loan.getApplicationDate().toString().substring(0, 16) %></td>
+                                        <td>
+                                            <div style="display: flex; gap: 10px;">
+                                                <form method="post" action="AdminServlet" style="display: inline;">
+                                                    <input type="hidden" name="action" value="approveLoan">
+                                                    <input type="hidden" name="loanId" value="<%= loan.getLoanId() %>">
+                                                    <input type="hidden" name="status" value="APPROVED">
+                                                    <button type="submit" class="btn btn-approve"
+                                                            onclick="return confirm('Are you sure you want to approve this loan?')">
+                                                        <i class="fas fa-check"></i> Approve
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="AdminServlet" style="display: inline;">
+                                                    <input type="hidden" name="action" value="approveLoan">
+                                                    <input type="hidden" name="loanId" value="<%= loan.getLoanId() %>">
+                                                    <input type="hidden" name="status" value="REJECTED">
+                                                    <button type="submit" class="btn btn-reject"
+                                                            onclick="return confirm('Are you sure you want to reject this loan?')">
+                                                        <i class="fas fa-times"></i> Reject
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <div class="no-data-message">
+                            <i class="fas fa-inbox" style="font-size: 48px; color: #bdc3c7; margin-bottom: 20px;"></i>
+                            <h3>No Pending Loan Applications</h3>
+                            <p>All loan applications have been processed. Check back later for new applications.</p>
+                        </div>
+                    <% } %>
+                </div>
+            <% } %>
         </div>
     </div>
+
+    <style>
+        // ...existing styles...
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: linear-gradient(135deg, #00a085, #00b894);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+        }
+
+        .btn-reject {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .no-data-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .no-data-message h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+    </style>
+
+    // ...existing scripts...
 </body>
 </html>

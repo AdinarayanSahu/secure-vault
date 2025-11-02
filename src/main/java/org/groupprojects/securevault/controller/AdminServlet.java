@@ -2,6 +2,7 @@ package org.groupprojects.securevault.controller;
 
 import org.groupprojects.securevault.dao.AdminDao;
 import org.groupprojects.securevault.model.User;
+import org.groupprojects.securevault.model.Loan;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -61,6 +62,14 @@ public class AdminServlet extends HttpServlet {
                     request.getRequestDispatcher("admin-dashboard.jsp").forward(request, response);
                     break;
 
+                // New loan approval actions
+                case "viewPendingLoans":
+                    List<Loan> pendingLoans = adminDao.getAllPendingLoans();
+                    request.setAttribute("pendingLoans", pendingLoans);
+                    request.setAttribute("showPendingLoans", true);
+                    request.getRequestDispatcher("admin-dashboard.jsp").forward(request, response);
+                    break;
+
                 case "deleteUser":
                     int userId = Integer.parseInt(request.getParameter("userId"));
                     boolean success = adminDao.deleteUser(userId);
@@ -76,6 +85,43 @@ public class AdminServlet extends HttpServlet {
                     // If action doesn't match, redirect to dashboard
                     response.sendRedirect("AdminServlet?action=dashboard");
                     break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "An error occurred: " + e.getMessage());
+            request.getRequestDispatcher("admin-dashboard.jsp").forward(request, response);
+        }
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        if (!isValidAdmin(request, response)) return;
+
+        String action = request.getParameter("action");
+        AdminDao adminDao = new AdminDao();
+
+        try {
+            if ("approveLoan".equals(action)) {
+                int loanId = Integer.parseInt(request.getParameter("loanId"));
+                String status = request.getParameter("status"); // "APPROVED" or "REJECTED"
+
+                boolean success = adminDao.updateLoanStatus(loanId, status);
+
+                if (success) {
+                    request.setAttribute("success", "Loan " + status.toLowerCase() + " successfully!");
+                } else {
+                    request.setAttribute("error", "Failed to update loan status!");
+                }
+
+                // Refresh the pending loans list
+                List<Loan> pendingLoans = adminDao.getAllPendingLoans();
+                request.setAttribute("pendingLoans", pendingLoans);
+                request.setAttribute("showPendingLoans", true);
+                request.getRequestDispatcher("admin-dashboard.jsp").forward(request, response);
+            } else {
+                // Handle other POST actions or redirect to GET
+                doGet(request, response);
             }
         } catch (Exception e) {
             e.printStackTrace();

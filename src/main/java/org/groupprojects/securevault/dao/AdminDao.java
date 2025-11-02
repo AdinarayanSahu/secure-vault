@@ -1,6 +1,7 @@
 package org.groupprojects.securevault.dao;
 
 import org.groupprojects.securevault.model.User;
+import org.groupprojects.securevault.model.Loan;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -274,5 +275,132 @@ public class AdminDao {
             }
         }
         return flag;
+    }
+
+    // Get all pending loans for admin approval
+    public List<Loan> getAllPendingLoans() throws SQLException {
+        List<Loan> loans = new ArrayList<>();
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            con = getConnection();
+            String query = "SELECT l.*, lt.loan_name, u.name as user_name, u.email " +
+                          "FROM loans l " +
+                          "JOIN loan_types lt ON l.loan_type_id = lt.loan_type_id " +
+                          "JOIN users u ON l.user_id = u.user_id " +
+                          "WHERE l.status = 'PENDING' " +
+                          "ORDER BY l.application_date DESC";
+            ps = con.prepareStatement(query);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Loan loan = new Loan();
+                loan.setLoanId(rs.getInt("loan_id"));
+                loan.setUserId(rs.getInt("user_id"));
+                loan.setAccountNo(rs.getInt("account_no"));
+                loan.setLoanTypeId(rs.getInt("loan_type_id"));
+                loan.setLoanTypeName(rs.getString("loan_name"));
+                loan.setLoanAmount(rs.getDouble("loan_amount"));
+                loan.setInterestRate(rs.getDouble("interest_rate"));
+                loan.setTenureMonths(rs.getInt("tenure_months"));
+                loan.setMonthlyEmi(rs.getDouble("monthly_emi"));
+                loan.setTotalAmount(rs.getDouble("total_amount"));
+                loan.setStatus(rs.getString("status"));
+                loan.setApplicationDate(rs.getTimestamp("application_date"));
+                loan.setPurpose(rs.getString("purpose"));
+                // Additional user info for admin view
+                loan.setUserName(rs.getString("user_name"));
+                loan.setUserEmail(rs.getString("email"));
+                loans.add(loan);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (con != null) con.close();
+        }
+        return loans;
+    }
+
+    // Approve or reject a loan
+    public boolean updateLoanStatus(int loanId, String status) throws SQLException {
+        Connection con = null;
+        PreparedStatement ps1 = null;
+        PreparedStatement ps2 = null;
+        PreparedStatement ps3 = null;
+        ResultSet rs = null;
+        boolean success = false;
+
+        try {
+            con = getConnection();
+            con.setAutoCommit(false);
+
+            // First get loan details
+            String getLoanQuery = "SELECT account_no, loan_amount FROM loans WHERE loan_id = ?";
+            ps1 = con.prepareStatement(getLoanQuery);
+            ps1.setInt(1, loanId);
+            rs = ps1.executeQuery();
+
+            int accountNo = 0;
+            double loanAmount = 0;
+            if (rs.next()) {
+                accountNo = rs.getInt("account_no");
+                loanAmount = rs.getDouble("loan_amount");
+            }
+            rs.close();
+            ps1.close();
+
+            // Update loan status
+            String updateLoanQuery = "UPDATE loans SET status = ?, approval_date = CURRENT_TIMESTAMP";
+            if ("APPROVED".equals(status)) {
+                updateLoanQuery += ", disbursement_date = CURRENT_TIMESTAMP";
+            }
+            updateLoanQuery += " WHERE loan_id = ?";
+
+            ps2 = con.prepareStatement(updateLoanQuery);
+            ps2.setString(1, status);
+            ps2.setInt(2, loanId);
+            int result1 = ps2.executeUpdate();
+
+            // If approved, add amount to account balance
+            if ("APPROVED".equals(status) && result1 > 0 && accountNo > 0) {
+                String updateBalanceQuery = "UPDATE personal_account SET balance = balance + ? WHERE account_no = ?";
+                ps3 = con.prepareStatement(updateBalanceQuery);
+                ps3.setDouble(1, loanAmount);
+                ps3.setInt(2, accountNo);
+                int result2 = ps3.executeUpdate();
+
+                if (result2 > 0) {
+                    con.commit();
+                    success = true;
+                } else {
+                    con.rollback();
+                }
+            } else if ("REJECTED".equals(status) && result1 > 0) {
+                con.commit();
+                success = true;
+            } else {
+                con.rollback();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (con != null) {
+                con.rollback();
+            }
+        } finally {
+            if (rs != null) rs.close();
+            if (ps1 != null) ps1.close();
+            if (ps2 != null) ps2.close();
+            if (ps3 != null) ps3.close();
+            if (con != null) {
+                con.setAutoCommit(true);
+                con.close();
+            }
+        }
+        return success;
     }
 }

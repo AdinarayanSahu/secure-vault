@@ -20,6 +20,10 @@ public class Loan {
     private Timestamp disbursementDate;
     private String purpose;
 
+    // Additional fields for admin view
+    private String userName;
+    private String userEmail;
+
     // Default constructor
     public Loan() {}
 
@@ -176,5 +180,21 @@ public class Loan {
 
     public void setPurpose(String purpose) {
         this.purpose = purpose;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 }
