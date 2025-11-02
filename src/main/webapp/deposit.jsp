@@ -63,6 +63,12 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label>🔒 Enter Your Password (for security):</label>
+                <input type="password" name="transactionPassword" placeholder="Enter your login password" required>
+                <small style="color: #666; font-size: 12px;">Please enter your account password to confirm this transaction</small>
+            </div>
+
             <button type="submit" class="btn btn-primary">Deposit Money</button>
         </form>
     </div>

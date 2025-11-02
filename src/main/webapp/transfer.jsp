@@ -61,6 +61,12 @@
                 <input type="number" id="amount" name="amount" placeholder="Enter amount" required min="1" step="0.01" max="<%= balance %>">
             </div>
 
+            <div class="form-group">
+                <label for="transactionPassword">🔒 Enter Your Password (for security):</label>
+                <input type="password" id="transactionPassword" name="transactionPassword" placeholder="Enter your login password" required>
+                <small style="color: #666; font-size: 12px;">Please enter your account password to confirm this transfer</small>
+            </div>
+
             <button type="submit" class="btn btn-primary">Transfer Money</button>
         </form>
     </div>
