@@ -377,6 +377,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="KYCRequestServlet" class="nav-link">
+                        <i class="fas fa-id-card"></i>
+                        KYC Requests
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="AdminServlet?action=getAllStatements" class="nav-link <%= "getAllStatements".equals(request.getParameter("action")) ? "active" : "" %>">
                         <i class="fas fa-file-alt"></i>
                         View Statements

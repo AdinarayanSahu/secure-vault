@@ -1,11 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page session="true" %>
 <!DOCTYPE html>
-<html>
+<html   >
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update KYC - SecureVault</title>
+    <title>Submit KYC Request - SecureVault</title>
     <link rel="stylesheet" href="styles/securevault.css">
 </head>
 <body>
@@ -13,25 +13,22 @@
 <%
     String name = (String) session.getAttribute("name");
     Integer accountNo = (Integer) session.getAttribute("accountNo");
-    String currentPhone = (String) session.getAttribute("phone");
-    String currentAddress = (String) session.getAttribute("address");
-    String currentAadhaar = (String) session.getAttribute("aadhaarNo");
-    String currentEmail = (String) session.getAttribute("email");
-    String currentPan = (String) session.getAttribute("panNo");
+    Integer userId = (Integer) session.getAttribute("userId");
+    Boolean hasPendingRequest = (Boolean) request.getAttribute("hasPendingRequest");
 
-    if (name == null || accountNo == null) {
+    if (name == null || accountNo == null || userId == null) {
         response.sendRedirect("login.jsp");
         return;
     }
 %>
 
 <header>
-    <h1>🏦 SecureVault - Update KYC</h1>
+    <h1>🏦 SecureVault - KYC Request</h1>
 </header>
 
 <main class="container">
     <div class="user-info">
-        <h3>Update KYC Information</h3>
+        <h3>Submit KYC Update Request</h3>
         <p>Account: <%= accountNo %> | Name: <%= name %></p>
     </div>
 
@@ -43,72 +40,53 @@
         <div class="alert alert-success"><%= request.getAttribute("success") %></div>
     <% } %>
 
+    <% if (hasPendingRequest != null && hasPendingRequest) { %>
+        <div class="alert alert-info">
+            <strong>📋 Pending Request</strong><br>
+            You have a pending KYC update request. Please wait for admin approval before submitting a new request.
+        </div>
+    <% } else { %>
+
     <div class="content-section">
-        <h2>Update Your Information</h2>
-        <p>Keep your KYC information up to date for secure banking</p>
+        <h2>Submit KYC Update Request</h2>
+        <p style="color: #666;">Your KYC request will be reviewed by an administrator before approval.</p>
 
-        <form action="KYCServlet" method="post">
+        <form action="KYCRequestServlet" method="post">
             <div class="form-group">
-                <label>Email Address:</label>
-                <input type="email" name="email" placeholder="Enter email address"
-                       value="<%= currentEmail != null ? currentEmail : "" %>"
-                       maxlength="100" required>
-                <small style="color: #666;">Valid email address for notifications</small>
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email address" required>
             </div>
 
             <div class="form-group">
-                <label>Mobile Number:</label>
-                <input type="tel" name="phone" placeholder="Enter mobile number"
-                       value="<%= currentPhone != null ? currentPhone : "" %>"
-                       pattern="[0-9]{10}" maxlength="10" required>
-                <small style="color: #666;">10-digit mobile number</small>
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" placeholder="10-digit phone number" maxlength="10" required>
             </div>
 
             <div class="form-group">
-                <label>PAN Card Number:</label>
-                <input type="text" name="panNo" placeholder="Enter PAN number"
-                       value="<%= currentPan != null ? currentPan : "" %>"
-                       pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" maxlength="10" required
-                       style="text-transform: uppercase;">
-                <small style="color: #666;">10-character PAN number (e.g., ABCDE1234F)</small>
+                <label for="panNo">PAN Number:</label>
+                <input type="text" id="panNo" name="panNo" placeholder="ABCDE1234F" maxlength="10" style="text-transform: uppercase;" required>
             </div>
 
             <div class="form-group">
-                <label>Aadhaar Number:</label>
-                <input type="text" name="aadhaarNo" placeholder="Enter Aadhaar number"
-                       value="<%= currentAadhaar != null ? currentAadhaar : "" %>"
-                       pattern="[0-9]{12}" maxlength="12" required>
-                <small style="color: #666;">12-digit Aadhaar number</small>
+                <label for="aadhaarNo">Aadhaar Number:</label>
+                <input type="text" id="aadhaarNo" name="aadhaarNo" placeholder="12-digit Aadhaar number" maxlength="12" required>
             </div>
 
             <div class="form-group">
-                <label>Address:</label>
-                <textarea name="address" placeholder="Enter complete address"
-                          rows="4" maxlength="200" required><%= currentAddress != null ? currentAddress : "" %></textarea>
-                <small style="color: #666;">Complete residential address</small>
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" rows="3" placeholder="Enter your complete address" required></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary">Update KYC Information</button>
+            <button type="submit" class="btn btn-primary">Submit KYC Request</button>
         </form>
     </div>
 
-    <div class="content-section">
-        <h3>Important Notes</h3>
-        <ul style="text-align: left; color: #666; max-width: 500px; margin: 0 auto;">
-            <li>Ensure all information is accurate and up to date</li>
-            <li>Email will be used for account notifications and statements</li>
-            <li>Mobile number will be used for transaction alerts</li>
-            <li>PAN card is required for tax and compliance purposes</li>
-            <li>Aadhaar number is required for identity verification</li>
-            <li>Address should match your current residential address</li>
-        </ul>
-    </div>
+    <% } %>
 
     <div class="navigation">
         <div class="nav-links">
             <a href="dashboard.jsp">Back to Dashboard</a>
-            <a href="ProfileServlet">View Profile</a>
-            <a href="UserStatementsServlet">View Statements</a>
+            <a href="profile.jsp">View Profile</a>
         </div>
     </div>
 </main>
@@ -122,6 +100,23 @@
     </div>
     <p>&copy; 2025 SecureVault. All rights reserved.</p>
 </footer>
+
+<script>
+    // Format PAN input
+    document.getElementById('panNo').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+
+    // Format phone input
+    document.getElementById('phone').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+
+    // Format Aadhaar input
+    document.getElementById('aadhaarNo').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+</script>
 
 </body>
 </html>
