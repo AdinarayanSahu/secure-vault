@@ -88,7 +88,7 @@ public class AdminDao {
 
         try {
             con = getConnection();
-            
+
             // Simple query to get all transactions first
             String sql = "SELECT * FROM transactions ORDER BY transaction_date DESC LIMIT 100";
             ps = con.prepareStatement(sql);
@@ -105,17 +105,17 @@ public class AdminDao {
                         rs.getString("status"));
                 statements.add(statement);
             }
-            
+
             // Close first query
             if (rs != null) rs.close();
             if (ps != null) ps.close();
-            
+
             // Try to get deposits if the table exists
             try {
                 String depositSql = "SELECT * FROM deposits ORDER BY deposit_date DESC LIMIT 50";
                 ps = con.prepareStatement(depositSql);
                 rs = ps.executeQuery();
-                
+
                 while (rs.next()) {
                     String statement = String.format("DEPOSIT ID: %d | Account: %d | Amount: ₹%.2f | Method: %s | Date: %s | Status: %s",
                             rs.getInt("deposit_id"),
@@ -130,7 +130,7 @@ public class AdminDao {
                 // Deposits table might not exist, that's okay
                 System.out.println("Deposits table not accessible: " + e.getMessage());
             }
-            
+
             // If no statements found, add test data
             if (statements.isEmpty()) {
                 statements.add("SAMPLE | Test Transaction | Account 1001 → Account 1002 | ₹1000.00 | 2024-11-02 | COMPLETED");
@@ -160,20 +160,20 @@ public class AdminDao {
 
         try {
             con = getConnection();
-            
-            // Get user's account number first
-            String accountSql = "SELECT account_no FROM accounts WHERE user_id = ?";
+
+            // FIXED: Changed from 'accounts' to 'personal_account' to match your database schema
+            String accountSql = "SELECT account_no FROM personal_account WHERE user_id = ?";
             ps = con.prepareStatement(accountSql);
             ps.setInt(1, userId);
             rs = ps.executeQuery();
-            
+
             int accountNo = 0;
             if (rs.next()) {
                 accountNo = rs.getInt("account_no");
             }
             rs.close();
             ps.close();
-            
+
             if (accountNo > 0) {
                 // Get transactions for this account
                 String transSql = "SELECT * FROM transactions WHERE from_account = ? OR to_account = ? ORDER BY transaction_date DESC LIMIT 50";
@@ -181,31 +181,38 @@ public class AdminDao {
                 ps.setInt(1, accountNo);
                 ps.setInt(2, accountNo);
                 rs = ps.executeQuery();
-                
+
                 while (rs.next()) {
                     String type = (rs.getInt("from_account") == accountNo) ? "TRANSFER OUT" : "TRANSFER IN";
-                    String statement = String.format("%s | %s | Account: %d | Amount: ₹%.2f | Date: %s | Status: %s",
+                    String otherAccount = (rs.getInt("from_account") == accountNo) ?
+                        String.valueOf(rs.getInt("to_account")) :
+                        String.valueOf(rs.getInt("from_account"));
+
+                    String statement = String.format("TXN ID: %d | %s | %s: %s | Amount: ₹%.2f | Date: %s | Status: %s",
+                            rs.getInt("transaction_id"),
                             rs.getTimestamp("transaction_date").toString().substring(0, 16),
                             type,
-                            (rs.getInt("from_account") == accountNo) ? rs.getInt("to_account") : rs.getInt("from_account"),
+                            otherAccount.equals("0") ? "System" : ("Account " + otherAccount),
                             rs.getDouble("amount"),
                             rs.getTimestamp("transaction_date").toString().substring(0, 16),
                             rs.getString("status"));
                     statements.add(statement);
                 }
-                
+
+                // Close current result set and statement before next query
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+
                 // Try to get deposits for this account
-                rs.close();
-                ps.close();
-                
                 try {
                     String depositSql = "SELECT * FROM deposits WHERE account_no = ? ORDER BY deposit_date DESC LIMIT 25";
                     ps = con.prepareStatement(depositSql);
                     ps.setInt(1, accountNo);
                     rs = ps.executeQuery();
-                    
+
                     while (rs.next()) {
-                        String statement = String.format("%s | DEPOSIT | Method: %s | Amount: ₹%.2f | Status: %s",
+                        String statement = String.format("DEP ID: %d | %s | DEPOSIT | Method: %s | Amount: ₹%.2f | Status: %s",
+                                rs.getInt("deposit_id"),
                                 rs.getTimestamp("deposit_date").toString().substring(0, 16),
                                 rs.getString("payment_method"),
                                 rs.getDouble("amount"),
@@ -213,62 +220,148 @@ public class AdminDao {
                         statements.add(statement);
                     }
                 } catch (Exception e) {
-                    // Deposits might not exist
-                    System.out.println("No deposits found for user: " + e.getMessage());
+                    // Deposits table might not exist or no deposits found
+                    System.out.println("No deposits found for account " + accountNo + ": " + e.getMessage());
+                }
+
+                // If no statements found, add informative message
+                if (statements.isEmpty()) {
+                    statements.add("No transaction history found for Account #" + accountNo);
+                    statements.add("This user has not performed any banking transactions yet.");
                 }
             } else {
-                statements.add("No account found for this user");
-            }
-            
-            if (statements.isEmpty()) {
-                statements.add("No transaction history found for this user");
+                statements.add("ERROR: No account found for User ID: " + userId);
+                statements.add("This user may not have a bank account created.");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            statements.add("Error retrieving user statements: " + e.getMessage());
+            statements.add("ERROR: Failed to retrieve user statements - " + e.getMessage());
+            statements.add("Please check database connection and ensure tables exist.");
         } finally {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-            if (con != null) con.close();
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (con != null) con.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return statements;
     }
 
+    // FIXED: Complete deleteUser method that handles all related data
     public boolean deleteUser(int userId) throws SQLException {
         boolean flag = false;
         Connection con = null;
         PreparedStatement ps1 = null;
         PreparedStatement ps2 = null;
+        PreparedStatement ps3 = null;
+        PreparedStatement ps4 = null;
+        PreparedStatement ps5 = null;
+        PreparedStatement ps6 = null;
 
         try {
             con = getConnection();
             con.setAutoCommit(false);
 
-            ps1 = con.prepareStatement("DELETE FROM login WHERE user_id = ?");
-            ps1.setInt(1, userId);
-            ps1.executeUpdate();
+            System.out.println("DEBUG: Starting delete process for user ID: " + userId);
 
-            ps2 = con.prepareStatement("DELETE FROM users WHERE user_id = ?");
-            ps2.setInt(1, userId);
-            int i = ps2.executeUpdate();
+            // First, get the account number for this user to delete related data
+            String getAccountQuery = "SELECT account_no FROM personal_account WHERE user_id = ?";
+            PreparedStatement psGetAccount = con.prepareStatement(getAccountQuery);
+            psGetAccount.setInt(1, userId);
+            ResultSet accountRs = psGetAccount.executeQuery();
 
-            if (i > 0) {
+            int accountNo = 0;
+            if (accountRs.next()) {
+                accountNo = accountRs.getInt("account_no");
+                System.out.println("DEBUG: Found account number: " + accountNo);
+            }
+            accountRs.close();
+            psGetAccount.close();
+
+            // Delete in proper order to avoid foreign key constraint violations
+
+            // 1. Delete transactions involving this account
+            if (accountNo > 0) {
+                ps1 = con.prepareStatement("DELETE FROM transactions WHERE from_account = ? OR to_account = ?");
+                ps1.setInt(1, accountNo);
+                ps1.setInt(2, accountNo);
+                int transactionDeletes = ps1.executeUpdate();
+                System.out.println("DEBUG: Deleted " + transactionDeletes + " transactions");
+            }
+
+            // 2. Delete deposits for this account
+            if (accountNo > 0) {
+                try {
+                    ps2 = con.prepareStatement("DELETE FROM deposits WHERE account_no = ?");
+                    ps2.setInt(1, accountNo);
+                    int depositDeletes = ps2.executeUpdate();
+                    System.out.println("DEBUG: Deleted " + depositDeletes + " deposits");
+                } catch (Exception e) {
+                    System.out.println("DEBUG: No deposits table or no deposits to delete: " + e.getMessage());
+                }
+            }
+
+            // 3. Delete loans for this user
+            try {
+                ps3 = con.prepareStatement("DELETE FROM loans WHERE user_id = ?");
+                ps3.setInt(1, userId);
+                int loanDeletes = ps3.executeUpdate();
+                System.out.println("DEBUG: Deleted " + loanDeletes + " loans");
+            } catch (Exception e) {
+                System.out.println("DEBUG: No loans table or no loans to delete: " + e.getMessage());
+            }
+
+            // 4. Delete personal account
+            if (accountNo > 0) {
+                ps4 = con.prepareStatement("DELETE FROM personal_account WHERE user_id = ?");
+                ps4.setInt(1, userId);
+                int accountDeletes = ps4.executeUpdate();
+                System.out.println("DEBUG: Deleted " + accountDeletes + " personal accounts");
+            }
+
+            // 5. Delete login credentials
+            ps5 = con.prepareStatement("DELETE FROM login WHERE user_id = ?");
+            ps5.setInt(1, userId);
+            int loginDeletes = ps5.executeUpdate();
+            System.out.println("DEBUG: Deleted " + loginDeletes + " login records");
+
+            // 6. Finally, delete the user record
+            ps6 = con.prepareStatement("DELETE FROM users WHERE user_id = ?");
+            ps6.setInt(1, userId);
+            int userDeletes = ps6.executeUpdate();
+            System.out.println("DEBUG: Deleted " + userDeletes + " user records");
+
+            if (userDeletes > 0) {
                 flag = true;
+                System.out.println("DEBUG: User deletion successful!");
+            } else {
+                System.out.println("DEBUG: User deletion failed - no user record deleted");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("ERROR: Exception during user deletion: " + e.getMessage());
         } finally {
             try {
                 if (flag == true) {
                     con.commit();
+                    System.out.println("DEBUG: Transaction committed successfully");
                 } else {
                     con.rollback();
+                    System.out.println("DEBUG: Transaction rolled back due to failure");
                 }
+
+                // Close all prepared statements
                 if (ps1 != null) ps1.close();
                 if (ps2 != null) ps2.close();
+                if (ps3 != null) ps3.close();
+                if (ps4 != null) ps4.close();
+                if (ps5 != null) ps5.close();
+                if (ps6 != null) ps6.close();
                 if (con != null) con.close();
             } catch (Exception e) {
                 e.printStackTrace();
