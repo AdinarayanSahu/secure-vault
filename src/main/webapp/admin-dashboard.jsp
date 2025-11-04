@@ -378,6 +378,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="register.jsp" class="nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        Register User
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="AdminServlet?action=viewPendingLoans" class="nav-link <%= "viewPendingLoans".equals(request.getParameter("action")) ? "active" : "" %>">
                         <i class="fas fa-hand-holding-usd"></i>
                         Loan Approvals
@@ -805,6 +811,6 @@
         }
     </style>
 
-    // ...existing scripts...
+    <!-- ...existing scripts... -->
 </body>
 </html>
