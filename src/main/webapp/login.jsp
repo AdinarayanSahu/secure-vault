@@ -21,10 +21,15 @@
 
         <%
             String error = (String) request.getAttribute("error");
+            String success = (String) request.getAttribute("success");
             if (error != null) {
         %>
         <div class="alert error" style="color: red; background-color: #ffebee; border: 1px solid #f44336; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
             <%= error %>
+        </div>
+        <% } else if (success != null) { %>
+        <div class="alert success" style="color: green; background-color: #e8f5e8; border: 1px solid #4caf50; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+            <%= success %>
         </div>
         <% } %>
 
@@ -33,7 +38,10 @@
                 <input type="text" name="username" placeholder="Username" required>
             </div>
             <div class="form-group">
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="password" placeholder="Password (min 6 characters)" minlength="6" required>
+                <div class="field-note" style="font-size: 12px; color: #666; margin-top: 5px;">
+                    Password must be at least 6 characters
+                </div>
             </div>
             <button type="submit" class="btn btn-login">Login</button>
         </form>

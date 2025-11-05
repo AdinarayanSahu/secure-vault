@@ -29,6 +29,26 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
+        // Validate input parameters
+        if (username == null || username.trim().isEmpty()) {
+            request.setAttribute("error", "Username is required.");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+            return;
+        }
+
+        if (password == null || password.trim().isEmpty()) {
+            request.setAttribute("error", "Password is required.");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+            return;
+        }
+
+        // Validate password length (minimum 6 characters)
+        if (password.length() < 6) {
+            request.setAttribute("error", "Password must be at least 6 characters long.");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+            return;
+        }
+
         // Check for admin login first
         if ("admin".equals(username) && "admin123".equals(password)) {
             HttpSession session = request.getSession();

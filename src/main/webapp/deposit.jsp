@@ -70,8 +70,6 @@
                     <option value="UPI">UPI Payment</option>
                     <option value="NET_BANKING">Net Banking</option>
                     <option value="DEBIT_CARD">Debit Card</option>
-                    <option value="CREDIT_CARD">Credit Card</option>
-                    <option value="CASH">Cash Deposit</option>
                 </select>
             </div>
 
@@ -126,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     if (!depositForm || !loadingOverlay || !loadingBar || !depositBtn) {
-        console.error('❌ Critical elements missing!');
+        console.error(' Critical elements missing!');
         return;
     }
 
