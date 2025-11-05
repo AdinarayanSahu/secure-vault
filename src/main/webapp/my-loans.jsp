@@ -101,7 +101,7 @@
     } else {
     %>
     <div class="content-section">
-        <h3>📋 No Loans Found</h3>
+        <h3>No Loans Found</h3>
         <p>You haven't applied for any loans yet.</p>
         <a href="LoanServlet?action=apply" class="btn btn-success">Apply for Loan</a>
     </div>
