@@ -97,8 +97,8 @@
         </div>
     </div>
     <%
-            }
-        } else {
+        }
+    } else {
     %>
     <div class="content-section">
         <h3>📋 No Loans Found</h3>

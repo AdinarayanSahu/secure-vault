@@ -19,6 +19,15 @@
     <div class="welcome-section">
         <h2>Login to Your Account</h2>
 
+        <%
+            String error = (String) request.getAttribute("error");
+            if (error != null) {
+        %>
+        <div class="alert error" style="color: red; background-color: #ffebee; border: 1px solid #f44336; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+            <%= error %>
+        </div>
+        <% } %>
+
         <form action="LoginServlet" method="post">
             <div class="form-group">
                 <input type="text" name="username" placeholder="Username" required>

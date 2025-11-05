@@ -44,22 +44,19 @@
             List<String> transactions = (List<String>) request.getAttribute("transactions");
             if (transactions != null && !transactions.isEmpty()) {
         %>
-        <table>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <thead>
-            <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Balance After</th>
+            <tr style="background-color: #2c3e50; color: white;">
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Date</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Type</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Description</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Amount</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Balance After</th>
             </tr>
             </thead>
             <tbody>
             <%
-                // Transactions come from DB in DESC order (newest first)
-                // Start with current balance and work backwards
                 double currentBalance = balance;
-
                 for (String transaction : transactions) {
                     String[] parts = transaction.split(" \\| ");
                     if (parts.length >= 4) {
@@ -68,8 +65,7 @@
                         String amountStr = parts[2].trim();
                         String description = parts[3].trim();
 
-                        // Parse amount
-                        double amount = 0.0;
+                        double amount;
                         try {
                             String cleanAmount = amountStr.replace("₹", "").trim();
                             amount = Double.parseDouble(cleanAmount);
@@ -77,39 +73,34 @@
                             amount = 0.0;
                         }
 
-                        // Determine if credit or debit for display
-                        boolean isCredit = false;
+                        boolean isCredit;
                         if (type.equals("Transfer In") || type.equals("Deposit")) {
                             isCredit = true;
                         } else if (type.equals("Transfer Out")) {
                             isCredit = false;
+                        } else {
+                            isCredit = false;
                         }
 
-                        // Set CSS class and inline styles for color coding
-                        String amountClass = isCredit ? "amount-positive" : "amount-negative";
                         String amountPrefix = isCredit ? "+" : "-";
                         String displayAmount = String.format("%.2f", amount);
-                        String inlineStyle = isCredit ? "color: #27ae60 !important; font-weight: bold !important;" : "color: #e74c3c !important; font-weight: bold !important;";
-
-                        // Display the balance AFTER this transaction (current balance for newest)
+                        String amountColor = isCredit ? "#27ae60" : "#e74c3c";
                         double balanceAfterTransaction = currentBalance;
             %>
-            <tr>
-                <td class="transaction-date"><%= date %></td>
-                <td class="transaction-type"><%= type %></td>
-                <td class="transaction-description"><%= description %></td>
-                <td class="transaction-amount <%= amountClass %>" style="<%= inlineStyle %>">
-                    <%= amountPrefix %>₹<%= displayAmount %>
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 12px; border: 1px solid #ddd;"><%= date %></td>
+                <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;"><%= type %></td>
+                <td style="padding: 12px; border: 1px solid #ddd;"><%= description %></td>
+                <td style="padding: 12px; border: 1px solid #ddd; color: <%= amountColor %>; font-weight: bold;">
+                    <%= amountPrefix %>₹ <%= displayAmount %>
                 </td>
-                <td>₹ <%= String.format("%.2f", balanceAfterTransaction) %></td>
+                <td style="padding: 12px; border: 1px solid #ddd;">₹ <%= String.format("%.2f", balanceAfterTransaction) %></td>
             </tr>
             <%
-                        // Calculate balance BEFORE this transaction for next iteration
-                        // Since we're going backwards in time (DESC order):
-                        if (type.equals("Transfer In") || type.equals("Deposit")) {
-                            currentBalance -= amount; // Remove credit to get previous balance
-                        } else if (type.equals("Transfer Out")) {
-                            currentBalance += amount; // Add back debit to get previous balance
+                        if (isCredit) {
+                            currentBalance -= amount;
+                        } else {
+                            currentBalance += amount;
                         }
                     }
                 }
@@ -117,11 +108,10 @@
             </tbody>
         </table>
         <%
-        } else {
+            } else {
         %>
-        <div class="no-transactions">
-            <p><strong>No transactions found for your account.</strong></p>
-            <p>Start by making a deposit or transfer to see your transaction history.</p>
+        <div style="text-align: center; padding: 40px; color: #666; font-style: italic;">
+            <p>No transactions found for your account.</p>
         </div>
         <%
             }
@@ -130,9 +120,9 @@
 
     <div class="navigation">
         <div class="nav-links">
-            <a href="DashboardServlet" class="btn">Back to Dashboard</a>
-            <a href="deposit.jsp" class="btn btn-success">Deposit Money</a>
-            <a href="transfer.jsp" class="btn btn-warning">Transfer Money</a>
+            <a href="dashboard.jsp" class="btn">🏠 Back to Dashboard</a>
+            <a href="deposit.jsp" class="btn btn-success">💰 Make Deposit</a>
+            <a href="transfer.jsp" class="btn btn-primary">💸 Transfer Money</a>
         </div>
     </div>
 </main>
@@ -141,9 +131,10 @@
     <div class="footer-links">
         <a href="dashboard.jsp">Dashboard</a>
         <a href="profile.jsp">Profile</a>
-        <a href="LoginServlet?action=logout">Logout</a>
+        <a href="my-loans.jsp">My Loans</a>
+        <a href="user-statements.jsp">Statements</a>
     </div>
-    <p>&copy; 2025 SecureVault. All rights reserved.</p>
+    <p>&copy; 2024 SecureVault. All rights reserved.</p>
 </footer>
 
 </body>
