@@ -49,7 +49,7 @@ public class AuthorizationFilter implements Filter {
             return;
         }
 
-        // Redirect direct JSP access to appropriate servlets
+        // Redirect direct JSP access to appropriate servlets (only for logged-in users)
         if (isProtectedJSP(path) && isLoggedIn) {
             String servletPath = getServletForJSP(path);
             if (servletPath != null) {
@@ -87,6 +87,7 @@ public class AuthorizationFilter implements Filter {
                path.equals("/register.jsp") ||
                path.equals("/LoginServlet") ||
                path.equals("/RegisterServlet") ||
+               path.equals("/LandingServlet") ||
                path.startsWith("/assets/") ||
                path.startsWith("/styles/") ||
                path.startsWith("/icons/") ||
