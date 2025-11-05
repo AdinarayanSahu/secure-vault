@@ -44,6 +44,13 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
+        // Name validation - only letters and spaces allowed
+        if (!name.matches("^[a-zA-Z\\s]+$")) {
+            request.setAttribute("error", "Name should only contain letters and spaces, no symbols or numbers allowed");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
+            return;
+        }
+
         if (ageParam == null || ageParam.trim().isEmpty()) {
             request.setAttribute("error", "Age is required");
             request.getRequestDispatcher("register.jsp").forward(request, response);
@@ -70,6 +77,13 @@ public class RegisterServlet extends HttpServlet {
 
         if (password == null || password.isEmpty()) {
             request.setAttribute("error", "Password is required");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
+            return;
+        }
+
+        // Password validation - exactly 6 digits
+        if (!password.matches("^\\d{6}$")) {
+            request.setAttribute("error", "Password must be exactly 6 digits");
             request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
