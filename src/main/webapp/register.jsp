@@ -38,7 +38,10 @@
                 <input type="text" name="name" placeholder="Full Name" required>
             </div>
             <div class="form-group">
-                <input type="number" name="age" placeholder="Age" required>
+                <input type="number" name="age" placeholder="Age (18+ required)" min="18" max="100" required>
+                <div class="field-note" style="font-size: 12px; color: #666; margin-top: 5px;">
+                    Minimum age: 18 years
+                </div>
             </div>
             <div class="form-group">
                 <input type="text" name="address" placeholder="Address" required>
