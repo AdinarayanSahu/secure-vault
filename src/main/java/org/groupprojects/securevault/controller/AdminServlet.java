@@ -62,7 +62,7 @@ public class AdminServlet extends HttpServlet {
                     request.getRequestDispatcher("admin-dashboard.jsp").forward(request, response);
                     break;
 
-                // New loan approval actions
+
                 case "viewPendingLoans":
                     List<Loan> pendingLoans = adminDao.getAllPendingLoans();
                     request.setAttribute("pendingLoans", pendingLoans);
@@ -82,7 +82,6 @@ public class AdminServlet extends HttpServlet {
                     break;
 
                 default:
-                    // If action doesn't match, redirect to dashboard
                     response.sendRedirect("AdminServlet?action=dashboard");
                     break;
             }
@@ -114,13 +113,12 @@ public class AdminServlet extends HttpServlet {
                     request.setAttribute("error", "Failed to update loan status!");
                 }
 
-                // Refresh the pending loans list
                 List<Loan> pendingLoans = adminDao.getAllPendingLoans();
                 request.setAttribute("pendingLoans", pendingLoans);
                 request.setAttribute("showPendingLoans", true);
                 request.getRequestDispatcher("admin-dashboard.jsp").forward(request, response);
             } else {
-                // Handle other POST actions or redirect to GET
+
                 doGet(request, response);
             }
         } catch (Exception e) {

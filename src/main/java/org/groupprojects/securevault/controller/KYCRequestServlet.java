@@ -29,13 +29,11 @@ public class KYCRequestServlet extends HttpServlet {
             return;
         }
 
-        // Admin view - show pending requests
         if (isAdmin != null && isAdmin) {
             List<KYCRequest> pendingRequests = kycDao.getPendingKYCRequests();
             request.setAttribute("pendingRequests", pendingRequests);
             request.getRequestDispatcher("kyc-requests.jsp").forward(request, response);
         } else {
-            // User view - show request form
             boolean hasPending = kycDao.hasPendingRequest(userId);
             request.setAttribute("hasPendingRequest", hasPending);
             request.getRequestDispatcher("kyc.jsp").forward(request, response);
@@ -55,7 +53,6 @@ public class KYCRequestServlet extends HttpServlet {
             return;
         }
 
-        // Admin actions
         if (isAdmin != null && isAdmin) {
             if ("approve".equals(action)) {
                 int requestId = Integer.parseInt(request.getParameter("requestId"));
@@ -78,7 +75,7 @@ public class KYCRequestServlet extends HttpServlet {
             }
             doGet(request, response);
         } else {
-            // User submitting KYC request
+
             if (kycDao.hasPendingRequest(userId)) {
                 request.setAttribute("error", "You already have a pending KYC request.");
                 doGet(request, response);
@@ -91,7 +88,7 @@ public class KYCRequestServlet extends HttpServlet {
             String aadhaarNo = request.getParameter("aadhaarNo");
             String address = request.getParameter("address");
 
-            // Validation
+
             if (email == null || email.trim().isEmpty() ||
                 phone == null || phone.trim().isEmpty() ||
                 panNo == null || panNo.trim().isEmpty() ||

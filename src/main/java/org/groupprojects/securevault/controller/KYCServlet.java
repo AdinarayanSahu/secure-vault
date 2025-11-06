@@ -33,7 +33,7 @@ public class KYCServlet extends HttpServlet {
         Integer userId = (Integer) session.getAttribute("userId");
 
         try {
-            // Load current user data for KYC form
+
             String sql = "SELECT * FROM users WHERE user_id = ?";
             try (Connection con = getConnection();
                  PreparedStatement ps = con.prepareStatement(sql)) {
@@ -74,14 +74,14 @@ public class KYCServlet extends HttpServlet {
 
         Integer userId = (Integer) session.getAttribute("userId");
 
-        // Get all parameters
+
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");
         String panNo = request.getParameter("panNo");
         String aadhaarNo = request.getParameter("aadhaarNo");
         String address = request.getParameter("address");
 
-        // Basic validation
+
         if (email == null || email.trim().isEmpty() ||
                 phone == null || phone.trim().isEmpty() ||
                 panNo == null || panNo.trim().isEmpty() ||
@@ -93,21 +93,21 @@ public class KYCServlet extends HttpServlet {
             return;
         }
 
-        // Validate email format
+
         if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             request.setAttribute("error", "Please enter a valid email address");
             doGet(request, response);
             return;
         }
 
-        // Validate phone number (10 digits)
+
         if (!phone.matches("\\d{10}")) {
             request.setAttribute("error", "Phone number must be exactly 10 digits");
             doGet(request, response);
             return;
         }
 
-        // Validate PAN number format (5 letters + 4 digits + 1 letter)
+
         panNo = panNo.toUpperCase();
         if (!panNo.matches("[A-Z]{5}[0-9]{4}[A-Z]{1}")) {
             request.setAttribute("error", "PAN number must be in format: ABCDE1234F (5 letters + 4 digits + 1 letter)");
@@ -115,7 +115,7 @@ public class KYCServlet extends HttpServlet {
             return;
         }
 
-        // Validate Aadhaar number (12 digits)
+
         if (!aadhaarNo.matches("\\d{12}")) {
             request.setAttribute("error", "Aadhaar number must be exactly 12 digits");
             doGet(request, response);
@@ -123,7 +123,7 @@ public class KYCServlet extends HttpServlet {
         }
 
         try {
-            // Update user information
+
             String sql = "UPDATE users SET email = ?, mobile = ?, pan_no = ?, aadhaar_no = ?, address = ? WHERE user_id = ?";
             try (Connection con = getConnection();
                  PreparedStatement ps = con.prepareStatement(sql)) {
@@ -155,7 +155,7 @@ public class KYCServlet extends HttpServlet {
             request.setAttribute("error", "An unexpected error occurred. Please try again.");
         }
 
-        // Forward back to KYC page with updated data
+
         doGet(request, response);
     }
 }

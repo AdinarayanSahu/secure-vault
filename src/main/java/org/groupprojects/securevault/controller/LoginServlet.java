@@ -29,7 +29,7 @@ public class LoginServlet extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        // Validate input parameters
+
         if (username == null || username.trim().isEmpty()) {
             request.setAttribute("error", "Username is required.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
@@ -42,22 +42,22 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Validate password length (minimum 6 characters)
+
         if (password.length() < 6) {
             request.setAttribute("error", "Password must be at least 6 characters long.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
 
-        // Check for admin login first
+
         if ("admin".equals(username) && "admin123".equals(password)) {
             HttpSession session = request.getSession();
             session.setAttribute("isAdmin", true);
             session.setAttribute("username", "admin");
             session.setAttribute("name", "Administrator");
-            session.setAttribute("userId", 1); // Add userId for proper session handling
+            session.setAttribute("userId", 1);
 
-            // Redirect to AdminServlet instead of directly to JSP
+
             response.sendRedirect("AdminServlet");
             return;
         }
@@ -105,14 +105,14 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("dashboard.jsp");
 
             } else {
-                // Invalid credentials - redirect back to login with error message
+
                 request.setAttribute("error", "Invalid username or password. Please try again.");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            // Database or other error - redirect back to login with error message
+
             request.setAttribute("error", "Login failed. Please try again later.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         } finally {

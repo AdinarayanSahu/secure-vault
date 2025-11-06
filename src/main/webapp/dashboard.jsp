@@ -86,7 +86,7 @@
             <p>View transaction history</p>
         </a>
 
-        <a href="my-loans.jsp" class="quick-action-card">
+        <a href="LoanServlet?action=myloans" class="quick-action-card">
             <img src="icons/loan.png" alt="Loan">
             <h4>Loans</h4>
             <p>Manage your loans</p>

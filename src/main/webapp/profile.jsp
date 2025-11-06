@@ -87,9 +87,9 @@
 
     <div class="navigation">
         <div class="nav-links">
-            <a href="DashboardServlet" class="btn">🏠 Back to Dashboard</a>
-            <a href="user-statements.jsp" class="btn btn-primary">📊 Statements</a>
-            <a href="my-loans.jsp" class="btn btn-loan">💰 My Loans</a>
+            <a href="DashboardServlet" class="btn"> Back to Dashboard</a>
+            <a href="user-statements.jsp" class="btn btn-primary"> Statements</a>
+            <a href="my-loans.jsp" class="btn btn-loan"> My Loans</a>
         </div>
     </div>
 </main>

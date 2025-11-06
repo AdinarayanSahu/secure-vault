@@ -42,6 +42,9 @@ public class LoanServlet extends HttpServlet {
     }
 
     private void showLoanForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer userId = checkSession(request, response, "userId");
+        if (userId == null) return;
+
         try {
             request.setAttribute("loanTypes", LoanDao.getAllLoanTypes());
             request.getRequestDispatcher("loan-application.jsp").forward(request, response);
@@ -91,7 +94,8 @@ public class LoanServlet extends HttpServlet {
             }
 
             Loan loan = new Loan(userId, accountNo, loanTypeId, loanAmount, loanType.getInterestRate(), tenureMonths, purpose);
-            showMessage(response, LoanDao.applyForLoan(loan) ? "Loan application submitted successfully" : "Failed to submit loan application", LoanDao.applyForLoan(loan));
+            boolean success = LoanDao.applyForLoan(loan);
+            showMessage(response, success ? "Loan application submitted successfully" : "Failed to submit loan application", success);
 
         } catch (Exception e) {
             showError(response, "Error processing loan application");
@@ -125,7 +129,7 @@ public class LoanServlet extends HttpServlet {
         }
     }
 
-    // Helper methods
+
     private Integer checkSession(HttpServletRequest request, HttpServletResponse response, String attribute) throws IOException {
         Integer value = (Integer) request.getSession().getAttribute(attribute);
         if (value == null) response.sendRedirect("login.jsp");

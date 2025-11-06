@@ -13,14 +13,12 @@ import javax.servlet.http.*;
 @WebServlet("/DepositServlet")
 public class DepositServlet extends HttpServlet {
 
-    // Database connection method
     private Connection getConnection() throws Exception {
         Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/smartbank_db", "root", "password");
     }
 
-    // Verify user password for transaction security
     private boolean verifyUserPassword(int userId, String password) {
         String sql = "SELECT l.password FROM login l WHERE l.user_id = ? AND l.password = ?";
         try (Connection con = getConnection();
@@ -30,7 +28,7 @@ public class DepositServlet extends HttpServlet {
             ps.setString(2, password);
 
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next(); // Returns true if password matches
+                return rs.next();
             }
 
         } catch (Exception e) {
@@ -71,7 +69,6 @@ public class DepositServlet extends HttpServlet {
             String isQuickAdd = request.getParameter("isQuickAdd");
             String transactionPassword = request.getParameter("transactionPassword");
 
-            // Verify password for security
             if (transactionPassword == null || transactionPassword.trim().isEmpty()) {
                 request.setAttribute("error", "Please enter your password to confirm the transaction");
                 request.getRequestDispatcher("deposit.jsp").forward(request, response);

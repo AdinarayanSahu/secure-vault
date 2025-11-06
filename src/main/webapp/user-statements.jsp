@@ -120,9 +120,9 @@
 
     <div class="navigation">
         <div class="nav-links">
-            <a href="dashboard.jsp" class="btn">🏠 Back to Dashboard</a>
-            <a href="deposit.jsp" class="btn btn-success">💰 Make Deposit</a>
-            <a href="transfer.jsp" class="btn btn-primary">💸 Transfer Money</a>
+            <a href="dashboard.jsp" class="btn"> Back to Dashboard</a>
+            <a href="deposit.jsp" class="btn btn-success"> Make Deposit</a>
+            <a href="transfer.jsp" class="btn btn-primary"> Transfer Money</a>
         </div>
     </div>
 </main>
